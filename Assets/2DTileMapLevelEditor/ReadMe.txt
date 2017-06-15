@@ -45,24 +45,29 @@ Sprites:
 
 SETUP:
 
-Create an instance of the LevelEditor prefab in the Hierarchy (drag and drop)
+1. Create an instance of the LevelEditor prefab in the Hierarchy (drag and drop)
 
-Create an instance of Canvas using the Unity create in the Hierarchy (Create -> UI -> Canvas)
+2. Create an instance of Canvas using the Unity create in the Hierarchy (Create -> UI -> Canvas)
 	My settings:
 	- UI Scale Mode: Scale With Screen Size
 	- Reference resolution: 1280 x 720
 	Rest is default
 
-Attach the GridOverlay and MoveCamera script to the main camera
+3. Attach the GridOverlay and MoveCamera script to the main camera
 
-Choose the GridMaterial as the Line Material in the GridOverlay script component of the main camera
+4. Choose the GridMaterial as the Line Material in the GridOverlay script component of the main camera
 
-Set the desired height, width and amount of layer in the LevelEditor prefab
-Add the level tiles (Prefab GameObjects) to the Tiles array in the LevelEditor prefab
-Attach the accompanied ButtonPrefab
-Set the desired dimensions for the tiles in the interface
-Specify a file extension to save and load the levels (default extension: lvl)
-Attach the accompanied LevelEditorUI
+5. Setup of the LevelEditor prefab settings:
+	- Set the desired height, width and amount of layer in the LevelEditor prefab
+	- Add the prefab test tiles or your own files to the Tiles array
+	- Attach the accompanied ButtonPrefab
+	- Set the desired dimensions for the tiles in the interface
+	- Specify a file extension to save and load the levels (default extension: lvl)
+	- Attach the accompanied LevelEditorUI
+
+6. Set the Game Mode aspect ratio to 16:9
+
+7. Hit the play button
 
 ---------------------------------------
 
