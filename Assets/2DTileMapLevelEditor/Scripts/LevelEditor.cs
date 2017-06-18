@@ -71,6 +71,8 @@ public class LevelEditor : MonoBehaviour {
 	// The UI panel used to store the Level Editor options
 	private GameObject levelEditorPanel;
 
+	private Transform previewTile;
+
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
 	{
@@ -245,6 +247,10 @@ public class LevelEditor : MonoBehaviour {
 	private void ButtonClick (int tileIndex)
 	{
 		selectedTile = tileIndex;
+		if (previewTile != null) {
+			DestroyImmediate (previewTile.gameObject);
+		}
+		previewTile = Instantiate (tiles [selectedTile], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100), Quaternion.identity) as Transform;
 	}
 
 	// Method to create an empty level by looping through the Height, Width and Layers 
@@ -304,6 +310,12 @@ public class LevelEditor : MonoBehaviour {
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
+			if (previewTile != null) {
+				Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
+					previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
+				}
+			}
 			// Update the layer text
 			SetLayerText ();
 			// Get the mouse position before click (abstraction)
@@ -341,6 +353,8 @@ public class LevelEditor : MonoBehaviour {
 				if (level [posX, posY, selectedLayer] != EMPTY) {
 					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
 					level [posX, posY, selectedLayer] = EMPTY;
+				} else if (previewTile != null) {
+					DestroyImmediate (previewTile.gameObject);
 				}
 			}
 		}
