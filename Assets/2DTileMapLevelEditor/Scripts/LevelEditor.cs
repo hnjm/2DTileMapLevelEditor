@@ -565,7 +565,10 @@ public class LevelEditor : MonoBehaviour {
 			bFormatter.Serialize (file, levelComplete);
 			file.Close ();
 		} else {
-			Debug.Log ("Failed to save level");
+			bool saveDialogAgain = EditorUtility.DisplayDialog("Failed to save level", "Open save dialog again?", "Yes", "No");
+			if (saveDialogAgain) {
+				SaveLevel ();
+			}
 		}
 	}
 
@@ -609,7 +612,10 @@ public class LevelEditor : MonoBehaviour {
 			file.Close ();
 			LoadLevelFromStringLayers (levelData);
 		} else {
-			print ("Failed to open level");
+			bool loadDialogAgain = EditorUtility.DisplayDialog("Failed to load level", "Open load dialog again?", "Yes", "No");
+			if (loadDialogAgain) {
+				LoadLevel ();
+			}
 		}
 	}
 
