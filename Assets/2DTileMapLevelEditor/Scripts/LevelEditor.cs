@@ -437,7 +437,7 @@ public class LevelEditor : MonoBehaviour {
 	// Method that updates the LayerText
 	void SetLayerText()
 	{
-		layerText.text = "Layer: " + selectedLayer;
+		layerText.text = "" + selectedLayer;
 	}
 
 	// Method that increments the selected layer
