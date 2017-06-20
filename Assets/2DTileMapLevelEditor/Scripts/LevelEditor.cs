@@ -279,15 +279,15 @@ public class LevelEditor : MonoBehaviour {
 	// and setting the value to EMPTY (-1)
 	int[, ,] CreateEmptyLevel()
 	{
-		int[,,] level = new int[WIDTH, HEIGHT, LAYERS];
+		int[,,] emptyLevel = new int[WIDTH, HEIGHT, LAYERS];
 		for (int x = 0; x < WIDTH; x++) {
 			for (int y = 0; y < HEIGHT; y++) {
 				for (int z = 0; z < LAYERS; z++) {
-					level [x, y, z] = EMPTY;
+					emptyLevel [x, y, z] = EMPTY;
 				}
 			}
 		}
-		return level;
+		return emptyLevel;
 	}
 
 	// Method to determine for a given x, y, z, whether the position is valid (within Width, Heigh and Layers)
