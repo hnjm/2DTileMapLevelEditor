@@ -73,6 +73,9 @@ public class LevelEditor : MonoBehaviour {
 
 	private Transform previewTile;
 
+	private FiniteStack<int[,,]> undoStack;
+	private FiniteStack<int[,,]> redoStack;
+
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
 	{
@@ -115,6 +118,9 @@ public class LevelEditor : MonoBehaviour {
 		level = CreateEmptyLevel ();
 		gameObjects = new Transform[WIDTH, HEIGHT, LAYERS];
 
+		undoStack = new FiniteStack<int[,,]> ();
+		redoStack = new FiniteStack<int[,,]> ();
+
 		//------ UI ---------
 
 		// Instantiate the LevelEditorUI
@@ -140,6 +146,22 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure LoadButton is present");
 		}
 		loadButton.GetComponent<Button>().onClick.AddListener (LoadLevel);
+
+		// Hook up Undo method to UndoButton
+		GameObject undoButton = GameObject.Find ("UndoButton");
+		if (undoButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure UndoButton is present");
+		}
+		undoButton.GetComponent<Button>().onClick.AddListener (Undo);
+
+		// Hook up Redo method to RedoButton
+		GameObject redoButton = GameObject.Find ("RedoButton");
+		if (redoButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure RedoButton is present");
+		}
+		redoButton.GetComponent<Button>().onClick.AddListener (Redo);
 
 		// Hook up ToggleGrid method to GridToggle
 		GameObject gridToggle = GameObject.Find ("GridToggle");
@@ -305,6 +327,39 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	void RebuildLevel(){
+		ResetTransformsAndLayers ();
+		for (int x = 0; x < WIDTH; x++) {
+			for (int y = 0; y < HEIGHT; y++) {
+				for (int z = 0; z < LAYERS; z++) {
+					CreateBlock (level [x, y, z], x, y, z);
+				}
+			}
+		}
+	}
+
+	void Undo(){
+		if (undoStack.Count > 0) {
+			redoStack.Push (level);
+		}
+		int[,,] undoLevel = undoStack.Pop ();
+		if (undoLevel != null) {
+			level = undoLevel;
+		}
+		RebuildLevel ();
+	}
+
+	void Redo() {
+		if (redoStack.Count > 0){
+			undoStack.Push(level);
+		}
+		int[,,] redoLevel = redoStack.Pop();
+		if (redoLevel != null) {
+			level = redoLevel;
+		}
+		RebuildLevel ();
+	}
+
 	// Method that updates layer text and handles creation and deletion on click
 	void Update()
 	{
@@ -315,6 +370,14 @@ public class LevelEditor : MonoBehaviour {
 				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
 					previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
 				}
+			}
+
+			if (Input.GetKeyDown (KeyCode.Z)) {
+				Undo ();
+			}
+
+			if(Input.GetKeyDown(KeyCode.Y)){
+				Redo ();
 			}
 			// Update the layer text
 			SetLayerText ();
@@ -336,13 +399,18 @@ public class LevelEditor : MonoBehaviour {
 			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0) {
 				// If it's the same, just keep the previous one and do nothing
 				if (level [posX, posY, selectedLayer] == selectedTile) {
+					return;
 				}
 				// If the position is empty, create a new block
 				else if (level [posX, posY, selectedLayer] == EMPTY) {
+					// Push level on undoStack since it is going to change
+					undoStack.Push (level.Clone() as int[,,]);
 					CreateBlock (selectedTile, posX, posY, selectedLayer);
 				}
 				// Else destroy the current element (using gameObjects array) and create a new block
 				else {
+					// Push level on undoStack since it is going to change
+					undoStack.Push (level.Clone() as int[,,]);
 					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
 					CreateBlock (selectedTile, posX, posY, selectedLayer);
 				}
@@ -501,6 +569,17 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	// Method that resets the GameObjects and layers
+	void ResetTransformsAndLayers()
+	{
+		// Destroy everything inside our currently level that's created
+		// dynamically
+		foreach (Transform child in tileLevelParent.transform) {
+			Destroy (child.gameObject);
+		}
+		layerParents = new Dictionary<int, GameObject> ();
+	}
+
 	// Method that resets the level and GameObject before a load
 	void ResetBeforeLoad()
 	{
@@ -511,6 +590,9 @@ public class LevelEditor : MonoBehaviour {
 		}
 		level = CreateEmptyLevel ();
 		layerParents = new Dictionary<int, GameObject> ();
+		// Reset undo and redo stacks
+		undoStack = new FiniteStack<int[,,]> ();
+		redoStack = new FiniteStack<int[,,]> ();
 	}
 
 	public void LoadLevel()
