@@ -76,6 +76,10 @@ public class LevelEditor : MonoBehaviour {
 	private FiniteStack<int[,,]> undoStack;
 	private FiniteStack<int[,,]> redoStack;
 
+	private GameObject mainCamera;
+	private Camera mainCameraComponent;
+	private float mainCameraInitialSize;
+
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
 	{
@@ -100,9 +104,15 @@ public class LevelEditor : MonoBehaviour {
 		GridOverlay.instance.SetGridSizeY (HEIGHT);
 
 		// Find the camera and position it in the middle of our level
-		GameObject camera = GameObject.FindGameObjectWithTag ("MainCamera");
-		if (camera != null) {
-			camera.transform.position = new Vector3 (WIDTH / 2, HEIGHT / 2, camera.transform.position.z);
+		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
+		if (mainCamera != null) {
+			mainCamera.transform.position = new Vector3 (WIDTH / 2, HEIGHT / 2, mainCamera.transform.position.z);
+			mainCameraComponent = mainCamera.GetComponent<Camera> ();
+			if (mainCameraComponent.orthographic) {
+				mainCameraInitialSize = mainCameraComponent.orthographicSize;
+			} else {
+				mainCameraInitialSize = mainCameraComponent.fieldOfView;
+			}
 		} else {
 			errorCounter++;
 			Debug.LogError ("Object with tag MainCamera not found");
@@ -162,6 +172,30 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure RedoButton is present");
 		}
 		redoButton.GetComponent<Button>().onClick.AddListener (Redo);
+
+		// Hook up ZoomIn method to ZoomInButton
+		GameObject zoomInButton = GameObject.Find ("ZoomInButton");
+		if (zoomInButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure ZoomInButton is present");
+		}
+		zoomInButton.GetComponent<Button>().onClick.AddListener (ZoomIn);
+
+		// Hook up ZoomOut method to ZoomOutButton
+		GameObject zoomOutButton = GameObject.Find ("ZoomOutButton");
+		if (zoomOutButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure ZoomOutButton is present");
+		}
+		zoomOutButton.GetComponent<Button>().onClick.AddListener (ZoomOut);
+
+		// Hook up ZoomDefault method to ZoomDefaultButton
+		GameObject zoomDefaultButton = GameObject.Find ("ZoomDefaultButton");
+		if (zoomDefaultButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure ZoomDefaultButton is present");
+		}
+		zoomDefaultButton.GetComponent<Button>().onClick.AddListener (ZoomDefault);
 
 		// Hook up ToggleGrid method to GridToggle
 		GameObject gridToggle = GameObject.Find ("GridToggle");
@@ -360,24 +394,66 @@ public class LevelEditor : MonoBehaviour {
 		RebuildLevel ();
 	}
 
+	// Increment the orthographic size or field of view of the camera, thereby zooming in
+	void ZoomIn(){
+		if (mainCameraComponent.orthographic) {
+			mainCameraComponent.orthographicSize = Mathf.Max (mainCameraComponent.orthographicSize - 1, 1);
+		} else {
+			mainCameraComponent.fieldOfView = Mathf.Max (mainCameraComponent.fieldOfView - 1, 1);
+		}
+	}
+
+	// Decrement the orthographic size or field of view of the camera, thereby zooming out
+	void ZoomOut(){
+		if (mainCameraComponent.orthographic) {
+			mainCameraComponent.orthographicSize += 1;
+		} else {
+			mainCameraComponent.fieldOfView += 1;
+		}
+	}
+
+	// Resets the orthographic size or field of view of the camera, thereby resetting the zoom level
+	void ZoomDefault(){
+		if (mainCameraComponent.orthographic) {
+			mainCameraComponent.orthographicSize = mainCameraInitialSize;
+		}else {
+			mainCameraComponent.fieldOfView = mainCameraInitialSize;
+		}
+
+	}
+
 	// Method that updates layer text and handles creation and deletion on click
 	void Update()
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
+			// Update previewTile position
 			if (previewTile != null) {
 				Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
 					previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
 				}
 			}
-
+			// If Z is pressed, undo action
 			if (Input.GetKeyDown (KeyCode.Z)) {
 				Undo ();
 			}
-
+			// If Y is pressed, redo action
 			if(Input.GetKeyDown(KeyCode.Y)){
 				Redo ();
+			}
+
+			// If Equals is pressed, zoom in
+			if(Input.GetKeyDown(KeyCode.Equals)){
+				ZoomIn ();
+			}
+			// if Minus is pressed, zoom in
+			if(Input.GetKeyDown(KeyCode.Minus)){
+				ZoomOut ();
+			}
+			// If 0 is pressed, reset zoom
+			if(Input.GetKeyDown(KeyCode.Alpha0)){
+				ZoomDefault ();
 			}
 			// Update the layer text
 			SetLayerText ();
