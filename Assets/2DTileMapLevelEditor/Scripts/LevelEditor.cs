@@ -600,20 +600,20 @@ public class LevelEditor : MonoBehaviour {
 	// Method that updates the LayerText
 	void SetLayerText()
 	{
-		layerText.text = "" + selectedLayer;
+		layerText.text = "" + (selectedLayer + 1);
 	}
 
 	// Method that increments the selected layer
 	public void LayerUp()
 	{
-		selectedLayer = Mathf.Clamp (selectedLayer + 1, 0, 100);
+		selectedLayer = Mathf.Min (selectedLayer + 1, LAYERS - 1);
 		UpdateLayerVisibility ();
 	}
 
 	// Method that decrements the selected layer
 	public void LayerDown()
 	{
-		selectedLayer = Mathf.Clamp (selectedLayer - 1, 0, 100);
+		selectedLayer = Mathf.Max (selectedLayer - 1, 0);
 		UpdateLayerVisibility ();
 	}
 
