@@ -84,8 +84,7 @@ public class LevelEditor : MonoBehaviour {
 	private Image fillModeButtonImage;
 	private bool fillMode = false;
 	public Texture2D fillCursor;
-	private static Color UIBackgroundColor = new Color32 (214, 214, 214, 255);
-	private static Color32 SelectedColor = new Color32 (150, 150, 150, 255);
+	private static Color32 DisabledColor = new Color32 (150, 150, 150, 255);
 
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
@@ -493,15 +492,15 @@ public class LevelEditor : MonoBehaviour {
 
 	void EnableFillMode(){
 		fillMode = true;
-		fillModeButtonImage.GetComponent<Image>().color = SelectedColor;
-		pencilModeButtonImage.GetComponent<Image>().color = UIBackgroundColor;
+		fillModeButtonImage.GetComponent<Image>().color = Color.black;
+		pencilModeButtonImage.GetComponent<Image>().color = DisabledColor;
 	}
 
 	void DisableFillMode(){
 		fillMode = false;
 		Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
-		pencilModeButtonImage.GetComponent<Image>().color = SelectedColor;
-		fillModeButtonImage.GetComponent<Image>().color = UIBackgroundColor;
+		pencilModeButtonImage.GetComponent<Image>().color = Color.black;
+		fillModeButtonImage.GetComponent<Image>().color = DisabledColor;
 	}
 
 	// Method that updates layer text and handles creation and deletion on click
