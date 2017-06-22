@@ -61,6 +61,9 @@ public class LevelEditor : MonoBehaviour {
 
 	// Boolean to determine whether to show all layers or only the current one
 	private bool onlyShowCurrentLayer = false;
+	private GameObject eyeImage;
+	private GameObject closedEyeImage;
+	private Toggle onlyShowCurrentLayerToggleComponent;
 
 	// The parent object of the Level Editor UI as prefab
 	public GameObject levelEditorUIPrefab;
@@ -225,7 +228,10 @@ public class LevelEditor : MonoBehaviour {
 			errorCounter++;
 			Debug.LogError ("Make sure OnlyShowCurrentLayerToggle is present");
 		}
-		onlyShowCurrentLayerToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleOnlyShowCurrentLayer);
+		eyeImage = GameObject.Find ("EyeImage");
+		closedEyeImage = GameObject.Find ("ClosedEyeImage");
+		onlyShowCurrentLayerToggleComponent = onlyShowCurrentLayerToggle.GetComponent<Toggle> ();
+		onlyShowCurrentLayerToggleComponent.onValueChanged.AddListener (ToggleOnlyShowCurrentLayer);
 
 		// Hook up EnablePencilMode method to PencilButton
 		GameObject pencilModeButton = GameObject.Find ("PencilButton");
@@ -614,6 +620,15 @@ public class LevelEditor : MonoBehaviour {
 	// Method that handles the UI toggle to only show the current layer
 	public void ToggleOnlyShowCurrentLayer(bool onlyShow){
 		onlyShowCurrentLayer = onlyShow;
+		if (onlyShowCurrentLayer) {
+			eyeImage.SetActive (true);
+			closedEyeImage.SetActive (false);
+			onlyShowCurrentLayerToggleComponent.targetGraphic = eyeImage.GetComponent<Graphic> ();
+		} else {
+			closedEyeImage.SetActive (true);
+			eyeImage.SetActive (false);
+			onlyShowCurrentLayerToggleComponent.targetGraphic = closedEyeImage.GetComponent<Graphic> ();
+		}
 		UpdateLayerVisibility ();
 	}
 
