@@ -261,6 +261,38 @@ public class LevelEditor : MonoBehaviour {
 		}
 		gridToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleGrid);
 
+		// Hook up GridUp method to GridUpButton
+		GameObject gridUpButton = GameObject.Find ("GridUpButton");
+		if (gridUpButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridUpButton is present");
+		}
+		gridUpButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridUp);
+
+		// Hook up GridDown method to GridDownButton
+		GameObject gridDownButton = GameObject.Find ("GridDownButton");
+		if (gridDownButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridDownButton is present");
+		}
+		gridDownButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridDown);
+
+		// Hook up GridLeft method to GridLeftButton
+		GameObject gridLeftButton = GameObject.Find ("GridLeftButton");
+		if (gridLeftButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridLeftButton is present");
+		}
+		gridLeftButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridLeft);
+
+		// Hook up GridRight method to GridRightButton
+		GameObject gridRightButton = GameObject.Find ("GridRightButton");
+		if (gridRightButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridRightButton is present");
+		}
+		gridRightButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridRight);
+
 		// Hook up CloseLevelEditorPanel method to CloseButton
 		GameObject closeButton = GameObject.Find ("CloseButton");
 		if (closeButton == null) {

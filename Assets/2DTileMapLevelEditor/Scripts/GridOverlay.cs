@@ -18,8 +18,6 @@ public class GridOverlay : MonoBehaviour {
 
 	private float offsetX = -0.5f;
 	private float offsetY = -0.5f;
-	private float scrollRate = 0.1f;
-	private float lastScroll = 0f;
 
 	public Material lineMaterial;
 
@@ -44,31 +42,20 @@ public class GridOverlay : MonoBehaviour {
 		gridSizeY = y;
 	}
 
-	void Update () 
-	{
-		if(lastScroll + scrollRate < Time.time)
-		{
-			if(Input.GetKey(KeyCode.I)) 
-			{
-				offsetY += smallStep;
-				lastScroll = Time.time;
-			}
-			if(Input.GetKey(KeyCode.K))
-			{
-				offsetY -= smallStep;
-				lastScroll = Time.time;
-			}
-			if(Input.GetKey(KeyCode.J)) 
-			{
-				offsetX -= smallStep;
-				lastScroll = Time.time;
-			}
-			if(Input.GetKey(KeyCode.L))
-			{
-				offsetX += smallStep;
-				lastScroll = Time.time;
-			}
-		}
+	public void GridUp(){
+		offsetY += smallStep;
+	}
+
+	public void GridDown(){
+		offsetY -= smallStep;
+	}
+
+	public void GridLeft(){
+		offsetX -= smallStep;
+	}
+
+	public void GridRight(){
+		offsetX += smallStep;
 	}
 
 	void OnPostRender()
