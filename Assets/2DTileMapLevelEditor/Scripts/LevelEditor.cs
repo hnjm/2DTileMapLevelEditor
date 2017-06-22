@@ -80,6 +80,13 @@ public class LevelEditor : MonoBehaviour {
 	private Camera mainCameraComponent;
 	private float mainCameraInitialSize;
 
+	private Image pencilModeButtonImage;
+	private Image fillModeButtonImage;
+	private bool fillMode = false;
+	public Texture2D fillCursor;
+	private static Color UIBackgroundColor = new Color32 (214, 214, 214, 255);
+	private static Color32 SelectedColor = new Color32 (150, 150, 150, 255);
+
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
 	{
@@ -197,14 +204,6 @@ public class LevelEditor : MonoBehaviour {
 		}
 		zoomDefaultButton.GetComponent<Button>().onClick.AddListener (ZoomDefault);
 
-		// Hook up ToggleGrid method to GridToggle
-		GameObject gridToggle = GameObject.Find ("GridToggle");
-		if (gridToggle == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridToggle is present");
-		}
-		gridToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleGrid);
-
 		// Hook up LayerUp method to +LayerButton
 		GameObject plusLayerButton = GameObject.Find ("+LayerButton");
 		if (plusLayerButton == null) {
@@ -228,6 +227,34 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure OnlyShowCurrentLayerToggle is present");
 		}
 		onlyShowCurrentLayerToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleOnlyShowCurrentLayer);
+
+		// Hook up EnablePencilMode method to PencilButton
+		GameObject pencilModeButton = GameObject.Find ("PencilButton");
+		if (pencilModeButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure PencilModeButton is present");
+		}
+		pencilModeButton.GetComponent<Button>().onClick.AddListener (DisableFillMode);
+		pencilModeButtonImage = pencilModeButton.GetComponent<Image> ();
+
+		// Hook up EnableFillMode method to FillButton
+		GameObject fillModeButton = GameObject.Find ("FillButton");
+		if (fillModeButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure FillModeButton is present");
+		}
+		fillModeButton.GetComponent<Button>().onClick.AddListener  (EnableFillMode);
+		fillModeButtonImage = fillModeButton.GetComponent<Image> ();
+
+		DisableFillMode ();
+
+		// Hook up ToggleGrid method to GridToggle
+		GameObject gridToggle = GameObject.Find ("GridToggle");
+		if (gridToggle == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridToggle is present");
+		}
+		gridToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleGrid);
 
 		// Hook up CloseLevelEditorPanel method to CloseButton
 		GameObject closeButton = GameObject.Find ("CloseButton");
@@ -422,14 +449,77 @@ public class LevelEditor : MonoBehaviour {
 
 	}
 
+	void ClickBlock(int posX, int posY){
+		// If it's the same, just keep the previous one and do nothing
+		if (level [posX, posY, selectedLayer] == selectedTile) {
+			return;
+		}
+		// If the position is empty, create a new block
+		else if (level [posX, posY, selectedLayer] == EMPTY) {
+			// Push level on undoStack since it is going to change
+			undoStack.Push (level.Clone() as int[,,]);
+			CreateBlock (selectedTile, posX, posY, selectedLayer);
+		}
+		// Else destroy the current element (using gameObjects array) and create a new block
+		else {
+			// Push level on undoStack since it is going to change
+			undoStack.Push (level.Clone() as int[,,]);
+			DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
+			CreateBlock (selectedTile, posX, posY, selectedLayer);
+		}
+	}
+
+	void Fill(int posX, int posY){
+		if (!ValidPosition (posX, posY, selectedLayer)) {
+			return;
+		} else if (level [posX, posY, selectedLayer] == EMPTY) {
+			CreateBlock (selectedTile, posX, posY, selectedLayer);
+			Fill (posX + 1, posY);
+			Fill (posX - 1, posY);
+			Fill (posX, posY + 1);
+			Fill (posX, posY - 1);
+		}
+
+	}
+
+	void ToggleFillMode(){
+		if(fillMode){
+			DisableFillMode ();
+		}
+		else{
+			EnableFillMode ();
+		}
+	}
+
+	void EnableFillMode(){
+		fillMode = true;
+		fillModeButtonImage.GetComponent<Image>().color = SelectedColor;
+		pencilModeButtonImage.GetComponent<Image>().color = UIBackgroundColor;
+	}
+
+	void DisableFillMode(){
+		fillMode = false;
+		Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
+		pencilModeButtonImage.GetComponent<Image>().color = SelectedColor;
+		fillModeButtonImage.GetComponent<Image>().color = UIBackgroundColor;
+	}
+
 	// Method that updates layer text and handles creation and deletion on click
 	void Update()
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
+			Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+			if (fillMode){
+				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
+					Cursor.SetCursor (fillCursor, new Vector2 (30, 25), CursorMode.Auto);
+				}
+				else {
+					Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
+				}
+			} 
 			// Update previewTile position
 			if (previewTile != null) {
-				Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
 					previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
 				}
@@ -455,6 +545,10 @@ public class LevelEditor : MonoBehaviour {
 			if(Input.GetKeyDown(KeyCode.Alpha0)){
 				ZoomDefault ();
 			}
+			// If F is pressed, toggle FillMode;
+			if(Input.GetKeyDown(KeyCode.F)){
+				ToggleFillMode ();
+			}
 			// Update the layer text
 			SetLayerText ();
 			// Get the mouse position before click (abstraction)
@@ -473,22 +567,10 @@ public class LevelEditor : MonoBehaviour {
 			}
 			// Left click - Create object
 			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0) {
-				// If it's the same, just keep the previous one and do nothing
-				if (level [posX, posY, selectedLayer] == selectedTile) {
-					return;
-				}
-				// If the position is empty, create a new block
-				else if (level [posX, posY, selectedLayer] == EMPTY) {
-					// Push level on undoStack since it is going to change
-					undoStack.Push (level.Clone() as int[,,]);
-					CreateBlock (selectedTile, posX, posY, selectedLayer);
-				}
-				// Else destroy the current element (using gameObjects array) and create a new block
-				else {
-					// Push level on undoStack since it is going to change
-					undoStack.Push (level.Clone() as int[,,]);
-					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
-					CreateBlock (selectedTile, posX, posY, selectedLayer);
+				if (fillMode) {
+					Fill (posX, posY);
+				} else {
+					ClickBlock (posX, posY);
 				}
 			}
 			// Right clicking - Delete object

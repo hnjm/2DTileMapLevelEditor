@@ -59,11 +59,13 @@ MonoBehaviour:
   - {fileID: 4000011169756728, guid: c5bf4424a05514be597de92e852ff421, type: 2}
   - {fileID: 4000014026670902, guid: e3f29ba18465146edbd2627d40551c81, type: 2}
   - {fileID: 4000013102667656, guid: b34e418e5797844cfae30860de728df3, type: 2}
+  - {fileID: 4000010041083728, guid: 197e59a5644474d82b269460e7a5aa36, type: 2}
   buttonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
     type: 2}
   buttonHeight: 70
   buttonWidth: 70
   buttonImageScale: 0.8
   fileExtension: lvl
-  levelEditorUIPrefab: {fileID: 1060669001749680, guid: 02f4b844c3f284c7c8e8798c7be4f95f,
+  levelEditorUIPrefab: {fileID: 1420373559913850, guid: 14b65411cc82346dbb287844ec50fe88,
     type: 2}
+  fillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
