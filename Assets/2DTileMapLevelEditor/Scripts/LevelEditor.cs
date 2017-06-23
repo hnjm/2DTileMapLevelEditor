@@ -61,9 +61,13 @@ public class LevelEditor : MonoBehaviour {
 
 	// Boolean to determine whether to show all layers or only the current one
 	private bool onlyShowCurrentLayer = false;
-	private GameObject eyeImage;
-	private GameObject closedEyeImage;
+	private GameObject layerEyeImage;
+	private GameObject layerClosedEyeImage;
 	private Toggle onlyShowCurrentLayerToggleComponent;
+
+	private GameObject gridEyeImage;
+	private GameObject gridClosedEyeImage;
+	private Toggle gridEyeToggleComponent;
 
 	// The parent object of the Level Editor UI as prefab
 	public GameObject levelEditorUIPrefab;
@@ -228,8 +232,8 @@ public class LevelEditor : MonoBehaviour {
 			errorCounter++;
 			Debug.LogError ("Make sure OnlyShowCurrentLayerToggle is present");
 		}
-		eyeImage = GameObject.Find ("EyeImage");
-		closedEyeImage = GameObject.Find ("ClosedEyeImage");
+		layerEyeImage = GameObject.Find ("LayerEyeImage");
+		layerClosedEyeImage = GameObject.Find ("LayerClosedEyeImage");
 		onlyShowCurrentLayerToggleComponent = onlyShowCurrentLayerToggle.GetComponent<Toggle> ();
 		onlyShowCurrentLayerToggleComponent.onValueChanged.AddListener (ToggleOnlyShowCurrentLayer);
 
@@ -254,12 +258,15 @@ public class LevelEditor : MonoBehaviour {
 		DisableFillMode ();
 
 		// Hook up ToggleGrid method to GridToggle
-		GameObject gridToggle = GameObject.Find ("GridToggle");
-		if (gridToggle == null) {
+		GameObject gridEyeToggle = GameObject.Find ("GridEyeToggle");
+		if (gridEyeToggle == null) {
 			errorCounter++;
-			Debug.LogError ("Make sure GridToggle is present");
+			Debug.LogError ("Make sure GridEyeToggle is present");
 		}
-		gridToggle.GetComponent<Toggle>().onValueChanged.AddListener (ToggleGrid);
+		gridEyeImage = GameObject.Find ("GridEyeImage");
+		gridClosedEyeImage = GameObject.Find ("GridClosedEyeImage");
+		gridEyeToggleComponent = gridEyeToggle.GetComponent<Toggle> ();
+		gridEyeToggleComponent.onValueChanged.AddListener (ToggleGrid);
 
 		// Hook up GridUp method to GridUpButton
 		GameObject gridUpButton = GameObject.Find ("GridUpButton");
@@ -627,6 +634,15 @@ public class LevelEditor : MonoBehaviour {
 	public void ToggleGrid(bool enabled)
 	{
 		GridOverlay.instance.enabled = enabled;
+		if (enabled) {
+			gridClosedEyeImage.SetActive (true);
+			gridEyeImage.SetActive (false);
+			gridEyeToggleComponent.targetGraphic = gridClosedEyeImage.GetComponent<Image> ();
+		} else {
+			gridEyeImage.SetActive (true);
+			gridClosedEyeImage.SetActive (false);
+			gridEyeToggleComponent.targetGraphic = gridEyeImage.GetComponent<Image> ();
+		}
 	}
 
 	// Method that updates the LayerText
@@ -653,13 +669,13 @@ public class LevelEditor : MonoBehaviour {
 	public void ToggleOnlyShowCurrentLayer(bool onlyShow){
 		onlyShowCurrentLayer = onlyShow;
 		if (onlyShowCurrentLayer) {
-			eyeImage.SetActive (true);
-			closedEyeImage.SetActive (false);
-			onlyShowCurrentLayerToggleComponent.targetGraphic = eyeImage.GetComponent<Graphic> ();
+			layerEyeImage.SetActive (true);
+			layerClosedEyeImage.SetActive (false);
+			onlyShowCurrentLayerToggleComponent.targetGraphic = layerEyeImage.GetComponent<Graphic> ();
 		} else {
-			closedEyeImage.SetActive (true);
-			eyeImage.SetActive (false);
-			onlyShowCurrentLayerToggleComponent.targetGraphic = closedEyeImage.GetComponent<Graphic> ();
+			layerClosedEyeImage.SetActive (true);
+			layerEyeImage.SetActive (false);
+			onlyShowCurrentLayerToggleComponent.targetGraphic = layerClosedEyeImage.GetComponent<Graphic> ();
 		}
 		UpdateLayerVisibility ();
 	}
