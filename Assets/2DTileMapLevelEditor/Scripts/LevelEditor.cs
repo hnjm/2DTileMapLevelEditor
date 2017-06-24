@@ -197,59 +197,46 @@ public class LevelEditor : MonoBehaviour {
 		SetupPrefabsButtons ();
 	}
 
+	private GameObject FindGameObjectOrError(string name){
+		GameObject gameObject = GameObject.Find (name);
+		if (gameObject == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure " + name + " is present");
+			return null;
+		} else {
+			return gameObject;
+		}
+	}
+
 	private void SetupSaveLoadButton(){
 		// Hook up SaveLevel method to SaveButton
-		GameObject saveButton = GameObject.Find ("SaveButton");
-		if (saveButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure SaveButton is present");
-		}
-		saveButton.GetComponent<Button>().onClick.AddListener (SaveLevel);
+		GameObject saveButton = FindGameObjectOrError ("SaveButton");
+		saveButton.GetComponent<Button> ().onClick.AddListener (SaveLevel);
 
 		// Hook up LoadLevel method to LoadButton
-		GameObject loadButton = GameObject.Find ("LoadButton");
-		if (loadButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure LoadButton is present");
-		}
-		loadButton.GetComponent<Button>().onClick.AddListener (LoadLevel);
+		GameObject loadButton = FindGameObjectOrError ("LoadButton");
+		loadButton.GetComponent<Button> ().onClick.AddListener (LoadLevel);
 	}
 
 	private void SetupUndoRedoButton(){
 		// Hook up Undo method to UndoButton
-		GameObject undoButton = GameObject.Find ("UndoButton");
-		if (undoButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure UndoButton is present");
-		}
-		undoButton.GetComponent<Button>().onClick.AddListener (Undo);
+		GameObject undoButton = FindGameObjectOrError ("UndoButton");
+		undoButton.GetComponent<Button> ().onClick.AddListener (Undo);
 
 		// Hook up Redo method to RedoButton
-		GameObject redoButton = GameObject.Find ("RedoButton");
-		if (redoButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure RedoButton is present");
-		}
-		redoButton.GetComponent<Button>().onClick.AddListener (Redo);
+		GameObject redoButton = FindGameObjectOrError ("RedoButton");
+		redoButton.GetComponent<Button> ().onClick.AddListener (Redo);
 	}
 
 	private void SetupModeButtons(){
 		// Hook up EnablePencilMode method to PencilButton
-		GameObject pencilModeButton = GameObject.Find ("PencilButton");
-		if (pencilModeButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure PencilModeButton is present");
-		}
-		pencilModeButton.GetComponent<Button>().onClick.AddListener (DisableFillMode);
+		GameObject pencilModeButton = FindGameObjectOrError ("PencilButton");
+		pencilModeButton.GetComponent<Button> ().onClick.AddListener (DisableFillMode);
 		pencilModeButtonImage = pencilModeButton.GetComponent<Image> ();
 
 		// Hook up EnableFillMode method to FillButton
-		GameObject fillModeButton = GameObject.Find ("FillButton");
-		if (fillModeButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure FillModeButton is present");
-		}
-		fillModeButton.GetComponent<Button>().onClick.AddListener  (EnableFillMode);
+		GameObject fillModeButton = FindGameObjectOrError ("FillButton");
+		fillModeButton.GetComponent<Button> ().onClick.AddListener (EnableFillMode);
 		fillModeButtonImage = fillModeButton.GetComponent<Image> ();
 
 		DisableFillMode ();
@@ -257,53 +244,29 @@ public class LevelEditor : MonoBehaviour {
 
 	private void SetupZoomButtons(){
 		// Hook up ZoomIn method to ZoomInButton
-		GameObject zoomInButton = GameObject.Find ("ZoomInButton");
-		if (zoomInButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure ZoomInButton is present");
-		}
-		zoomInButton.GetComponent<Button>().onClick.AddListener (ZoomIn);
+		GameObject zoomInButton = FindGameObjectOrError ("ZoomInButton");
+		zoomInButton.GetComponent<Button> ().onClick.AddListener (ZoomIn);
 
 		// Hook up ZoomOut method to ZoomOutButton
-		GameObject zoomOutButton = GameObject.Find ("ZoomOutButton");
-		if (zoomOutButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure ZoomOutButton is present");
-		}
-		zoomOutButton.GetComponent<Button>().onClick.AddListener (ZoomOut);
+		GameObject zoomOutButton = FindGameObjectOrError ("ZoomOutButton");
+		zoomOutButton.GetComponent<Button> ().onClick.AddListener (ZoomOut);
 
 		// Hook up ZoomDefault method to ZoomDefaultButton
-		GameObject zoomDefaultButton = GameObject.Find ("ZoomDefaultButton");
-		if (zoomDefaultButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure ZoomDefaultButton is present");
-		}
-		zoomDefaultButton.GetComponent<Button>().onClick.AddListener (ZoomDefault);
+		GameObject zoomDefaultButton = FindGameObjectOrError ("ZoomDefaultButton");
+		zoomDefaultButton.GetComponent<Button> ().onClick.AddListener (ZoomDefault);
 	}
 
 	public void SetupLayerButtons(){
 		// Hook up LayerUp method to +LayerButton
-		GameObject plusLayerButton = GameObject.Find ("+LayerButton");
-		if (plusLayerButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure +LayerButton is present");
-		}
+		GameObject plusLayerButton = FindGameObjectOrError ("+LayerButton");
 		plusLayerButton.GetComponent<Button> ().onClick.AddListener (LayerUp);
 
 		// Hook up LayerDown method to -LayerButton
-		GameObject minusLayerButton = GameObject.Find ("-LayerButton");
-		if (minusLayerButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure -LayerButton is present");
-		}
+		GameObject minusLayerButton = FindGameObjectOrError ("-LayerButton");
 		minusLayerButton.GetComponent<Button> ().onClick.AddListener (LayerDown);
 
 		// Hook up ToggleOnlyShowCurrentLayer method to OnlyShowCurrentLayerToggle
-		GameObject onlyShowCurrentLayerToggle = GameObject.Find ("OnlyShowCurrentLayerToggle");
-		if (onlyShowCurrentLayerToggle == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure OnlyShowCurrentLayerToggle is present");
-		}
+		GameObject onlyShowCurrentLayerToggle = FindGameObjectOrError ("OnlyShowCurrentLayerToggle");
 		layerEyeImage = GameObject.Find ("LayerEyeImage");
 		layerClosedEyeImage = GameObject.Find ("LayerClosedEyeImage");
 		onlyShowCurrentLayerToggleComponent = onlyShowCurrentLayerToggle.GetComponent<Toggle> ();
@@ -318,83 +281,47 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	private void SetupGridButtons(){// Hook up ToggleGrid method to GridToggle
-		GameObject gridEyeToggle = GameObject.Find ("GridEyeToggle");
-		if (gridEyeToggle == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridEyeToggle is present");
-		}
+		GameObject gridEyeToggle = FindGameObjectOrError ("GridEyeToggle");
 		gridEyeImage = GameObject.Find ("GridEyeImage");
 		gridClosedEyeImage = GameObject.Find ("GridClosedEyeImage");
 		gridEyeToggleComponent = gridEyeToggle.GetComponent<Toggle> ();
 		gridEyeToggleComponent.onValueChanged.AddListener (ToggleGrid);
 
 		// Hook up GridSizeUp method to GridSizeUpButton
-		GameObject gridSizeUpButton = GameObject.Find ("GridSizeUpButton");
-		if (gridSizeUpButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure gridSizeUpButton is present");
-		}
-		gridSizeUpButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridSizeUp);
+		GameObject gridSizeUpButton = FindGameObjectOrError ("GridSizeUpButton");
+		gridSizeUpButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridSizeUp);
 
 		// Hook up GridSizeDown method to GridSizeDownButton
-		GameObject gridSizeDownButton = GameObject.Find ("GridSizeDownButton");
-		if (gridSizeDownButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridSizeDownButton is present");
-		}
-		gridSizeDownButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridSizeDown);
+		GameObject gridSizeDownButton = FindGameObjectOrError ("GridSizeDownButton");
+		gridSizeDownButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridSizeDown);
 
 		// Hook up GridUp method to GridUpButton
-		GameObject gridUpButton = GameObject.Find ("GridUpButton");
-		if (gridUpButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridUpButton is present");
-		}
-		gridUpButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridUp);
+		GameObject gridUpButton = FindGameObjectOrError ("GridUpButton");
+		gridUpButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridUp);
 
 		// Hook up GridDown method to GridDownButton
-		GameObject gridDownButton = GameObject.Find ("GridDownButton");
-		if (gridDownButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridDownButton is present");
-		}
-		gridDownButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridDown);
+		GameObject gridDownButton = FindGameObjectOrError ("GridDownButton");
+		gridDownButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridDown);
 
 		// Hook up GridLeft method to GridLeftButton
-		GameObject gridLeftButton = GameObject.Find ("GridLeftButton");
-		if (gridLeftButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridLeftButton is present");
-		}
-		gridLeftButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridLeft);
+		GameObject gridLeftButton = FindGameObjectOrError ("GridLeftButton");
+		gridLeftButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridLeft);
 
 		// Hook up GridRight method to GridRightButton
-		GameObject gridRightButton = GameObject.Find ("GridRightButton");
-		if (gridRightButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure GridRightButton is present");
-		}
-		gridRightButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridRight);
+		GameObject gridRightButton = FindGameObjectOrError ("GridRightButton");
+		gridRightButton.GetComponent<Button> ().onClick.AddListener (GridOverlay.instance.GridRight);
 	}
 
-	private void SetupOpenCloseButton(){
+	private void SetupOpenCloseButton ()
+	{
 		// Hook up CloseLevelEditorPanel method to CloseButton
-		GameObject closeButton = GameObject.Find ("CloseButton");
-		if (closeButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure CloseButton is present");
-		}
-		closeButton.GetComponent<Button>().onClick.AddListener (CloseLevelEditorPanel);
+		GameObject closeButton = FindGameObjectOrError ("CloseButton");
+		closeButton.GetComponent<Button> ().onClick.AddListener (CloseLevelEditorPanel);
 
 		// Instantiate the OpenButton
-		openButton = GameObject.Find ("OpenButton");
-		if (openButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure OpenButton is present");
-		} else {
-			openButton.SetActive(false);
-			openButton.GetComponent<Button>().onClick.AddListener (OpenLevelEditorPanel);
-		}
+		openButton = FindGameObjectOrError ("OpenButton");
+		openButton.GetComponent<Button> ().onClick.AddListener (OpenLevelEditorPanel);
+		openButton.SetActive (false);
 	}
 
 	private void SetupPrefabsButtons(){
