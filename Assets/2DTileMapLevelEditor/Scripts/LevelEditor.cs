@@ -417,6 +417,8 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	// Rebuild the level (e.g. after using undo/redo)
+	// Reset the Transforms and Layer, then loop trough level array and create blocks
 	void RebuildLevel(){
 		ResetTransformsAndLayers ();
 		for (int x = 0; x < WIDTH; x++) {
@@ -428,26 +430,36 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	// Load last saved level from undo stack and rebuild level
 	void Undo(){
+		// See if there is anything on the undo stack
 		if (undoStack.Count > 0) {
+			// If so, push it to the redo stack
 			redoStack.Push (level);
 		}
+		// Get the last level entry
 		int[,,] undoLevel = undoStack.Pop ();
 		if (undoLevel != null) {
+			// Set level and rebuild the level
 			level = undoLevel;
+			RebuildLevel ();
 		}
-		RebuildLevel ();
 	}
 
+	// Load last saved level from redo tack and rebuild level
 	void Redo() {
+		// See if there is anything on the redo stack
 		if (redoStack.Count > 0){
+			// If so, push it to the redo stack
 			undoStack.Push(level);
 		}
+		// Get the last level entry
 		int[,,] redoLevel = redoStack.Pop();
 		if (redoLevel != null) {
+			// Set level and rebuild the level
 			level = redoLevel;
+			RebuildLevel ();
 		}
-		RebuildLevel ();
 	}
 
 	// Increment the orthographic size or field of view of the camera, thereby zooming in
@@ -478,39 +490,36 @@ public class LevelEditor : MonoBehaviour {
 
 	}
 
-	void ClickBlock(int posX, int posY){
-		// If it's the same, just keep the previous one and do nothing
-		if (level [posX, posY, selectedLayer] == selectedTile) {
-			return;
-		}
-		// If the position is empty, create a new block
-		else if (level [posX, posY, selectedLayer] == EMPTY) {
+	// Clicked on position, so check if it is the same, and (destroy and) build if neccesary
+	void ClickedPosition(int posX, int posY){
+		// If it's the same, just keep the previous one and do nothing, else (destroy and) build
+		if (level [posX, posY, selectedLayer] != selectedTile) {
 			// Push level on undoStack since it is going to change
-			undoStack.Push (level.Clone() as int[,,]);
-			CreateBlock (selectedTile, posX, posY, selectedLayer);
-		}
-		// Else destroy the current element (using gameObjects array) and create a new block
-		else {
-			// Push level on undoStack since it is going to change
-			undoStack.Push (level.Clone() as int[,,]);
-			DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
+			undoStack.Push (level.Clone () as int[,,]);
+			// If the position is not empty, destroy the the current element (using gameObjects array)
+			if (level [posX, posY, selectedLayer] != EMPTY) {
+				DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
+			}
+			// Create the new game object
 			CreateBlock (selectedTile, posX, posY, selectedLayer);
 		}
 	}
 
+	// Fill from position recursively. Only fill if the position is valid and empty
 	void Fill(int posX, int posY){
-		if (!ValidPosition (posX, posY, selectedLayer)) {
-			return;
-		} else if (level [posX, posY, selectedLayer] == EMPTY) {
+		// Check valid and empty
+		if (ValidPosition (posX, posY, selectedLayer) && level [posX, posY, selectedLayer] == EMPTY) {
+			// Create a block on the position
 			CreateBlock (selectedTile, posX, posY, selectedLayer);
+			// Fill x+1, x-1, y+1, y-1
 			Fill (posX + 1, posY);
 			Fill (posX - 1, posY);
 			Fill (posX, posY + 1);
 			Fill (posX, posY - 1);
 		}
-
 	}
 
+	// Toggle fill mode (between fill and pencil mode)
 	void ToggleFillMode(){
 		if(fillMode){
 			DisableFillMode ();
@@ -520,12 +529,14 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	// Enable fill mode and update UI
 	void EnableFillMode(){
 		fillMode = true;
 		fillModeButtonImage.GetComponent<Image>().color = Color.black;
 		pencilModeButtonImage.GetComponent<Image>().color = DisabledColor;
 	}
 
+	// Disable fill mode and update UI and cursor
 	void DisableFillMode(){
 		fillMode = false;
 		Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
@@ -538,54 +549,20 @@ public class LevelEditor : MonoBehaviour {
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
+			// Save the world point were the mouse clicked
 			Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			if (fillMode){
-				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
-					Cursor.SetCursor (fillCursor, new Vector2 (30, 25), CursorMode.Auto);
-				}
-				else {
-					Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
-				}
-			} 
-			// Update previewTile position
-			if (previewTile != null) {
-				if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
-					previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
-				}
-			}
-			// If Z is pressed, undo action
-			if (Input.GetKeyDown (KeyCode.Z)) {
-				Undo ();
-			}
-	
-			// If Y is pressed, redo action
-			if(Input.GetKeyDown(KeyCode.Y)){
-				Redo ();
-			}
-
-			// If Equals is pressed, zoom in
-			if(Input.GetKeyDown(KeyCode.Equals)){
-				ZoomIn ();
-			}
-			// if Minus is pressed, zoom in
-			if(Input.GetKeyDown(KeyCode.Minus)){
-				ZoomOut ();
-			}
-			// If 0 is pressed, reset zoom
-			if(Input.GetKeyDown(KeyCode.Alpha0)){
-				ZoomDefault ();
-			}
-			// If F is pressed, toggle FillMode;
-			if(Input.GetKeyDown(KeyCode.F)){
-				ToggleFillMode ();
-			}
+			// Update fill mode cursor
+			UpdateFillModeCursor (worldMousePosition);
+			// Update preview tile position
+			UpdatePreviewTilePosition (worldMousePosition);
+			// Check button input
+			CheckButtonInput ();
 			// Update the layer text
-			SetLayerText ();
-			// Get the mouse position before click (abstraction)
+			UpdateLayerText ();
+			// Get the mouse position before click
 			Vector3 mousePos = Input.mousePosition;
-			//Set the position in the z axis to the opposite of the
-			// camera's so that the position is on the world so
-			// ScreenToWorldPoint will give us valid values.
+			// Set the position in the z axis to the opposite of the camera's so that the position is on the world
+			//  so ScreenToWorldPoint will give us valid values.
 			mousePos.z = Camera.main.transform.position.z * -1;
 			Vector3 pos = Camera.main.ScreenToWorldPoint (mousePos);
 			// Deal with the mouse being not exactly on a block
@@ -597,10 +574,11 @@ public class LevelEditor : MonoBehaviour {
 			}
 			// Left click - Create object (check hotControl and not over UI)
 			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
+				// If fill mode, fill, else click position (pencil mode)
 				if (fillMode) {
 					Fill (posX, posY);
 				} else {
-					ClickBlock (posX, posY);
+					ClickedPosition (posX, posY);
 				}
 			}
 			// Right clicking - Delete object (check hotControl and not over UI)
@@ -609,17 +587,79 @@ public class LevelEditor : MonoBehaviour {
 				if (level [posX, posY, selectedLayer] != EMPTY) {
 					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
 					level [posX, posY, selectedLayer] = EMPTY;
-				} else if (previewTile != null) {
+				} 
+				// If we hit nothing and previewTile is null, remove it
+				else if (previewTile != null) {
 					DestroyImmediate (previewTile.gameObject);
 				}
 			}
 		}
 	}
 
+	// If fill mode is enabled, update cursor (only show fill cursor on grid)
+	private void UpdateFillModeCursor(Vector3 worldMousePosition){
+		if (fillMode){
+			// If valid position, set cursor to bucket
+			if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
+				Cursor.SetCursor (fillCursor, new Vector2 (30, 25), CursorMode.Auto);
+			}
+			// Else use default cursor
+			else {
+				Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
+			}
+		} 
+	}
+
+	// Update previewTile position
+	private void UpdatePreviewTilePosition(Vector3 worldMousePosition){
+		if (previewTile != null) {
+			if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
+				previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
+			}
+		}
+	}
+
+	// Check for any button presses (undo/redo, zooming and fill/pencil mode)
+	private void CheckButtonInput(){
+		// If Z is pressed, undo action
+		if (Input.GetKeyDown (KeyCode.Z)) {
+			Undo ();
+		}
+
+		// If Y is pressed, redo action
+		if(Input.GetKeyDown(KeyCode.Y)){
+			Redo ();
+		}
+
+		// If Equals is pressed, zoom in
+		if(Input.GetKeyDown(KeyCode.Equals)){
+			ZoomIn ();
+		}
+		// if Minus is pressed, zoom in
+		if(Input.GetKeyDown(KeyCode.Minus)){
+			ZoomOut ();
+		}
+		// If 0 is pressed, reset zoom
+		if(Input.GetKeyDown(KeyCode.Alpha0)){
+			ZoomDefault ();
+		}
+		// If F is pressed, toggle FillMode;
+		if(Input.GetKeyDown(KeyCode.F)){
+			ToggleFillMode ();
+		}
+	}
+
+	// Method that updates the LayerText
+	void UpdateLayerText()
+	{
+		layerText.text = "" + (selectedLayer + 1);
+	}
+
 	// Method that toggles the grid
-	public void ToggleGrid(bool enabled)
+	private void ToggleGrid(bool enabled)
 	{
 		GridOverlay.instance.enabled = enabled;
+		// Update UI 
 		if (enabled) {
 			gridClosedEyeImage.SetActive (true);
 			gridEyeImage.SetActive (false);
@@ -629,12 +669,6 @@ public class LevelEditor : MonoBehaviour {
 			gridClosedEyeImage.SetActive (false);
 			gridEyeToggleComponent.targetGraphic = gridEyeImage.GetComponent<Image> ();
 		}
-	}
-
-	// Method that updates the LayerText
-	void SetLayerText()
-	{
-		layerText.text = "" + (selectedLayer + 1);
 	}
 
 	// Method that increments the selected layer
@@ -654,6 +688,7 @@ public class LevelEditor : MonoBehaviour {
 	// Method that handles the UI toggle to only show the current layer
 	public void ToggleOnlyShowCurrentLayer(bool onlyShow){
 		onlyShowCurrentLayer = onlyShow;
+		// Update UI
 		if (onlyShowCurrentLayer) {
 			layerEyeImage.SetActive (true);
 			layerClosedEyeImage.SetActive (false);
@@ -663,6 +698,7 @@ public class LevelEditor : MonoBehaviour {
 			layerEyeImage.SetActive (false);
 			onlyShowCurrentLayerToggleComponent.targetGraphic = layerClosedEyeImage.GetComponent<Graphic> ();
 		}
+		// Update layer visibility
 		UpdateLayerVisibility ();
 	}
 
