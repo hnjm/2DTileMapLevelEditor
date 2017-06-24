@@ -268,6 +268,22 @@ public class LevelEditor : MonoBehaviour {
 		gridEyeToggleComponent = gridEyeToggle.GetComponent<Toggle> ();
 		gridEyeToggleComponent.onValueChanged.AddListener (ToggleGrid);
 
+		// Hook up GridSizeUp method to GridSizeUpButton
+		GameObject gridSizeUpButton = GameObject.Find ("GridSizeUpButton");
+		if (gridSizeUpButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure gridSizeUpButton is present");
+		}
+		gridSizeUpButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridSizeUp);
+
+		// Hook up GridSizeDown method to GridSizeDownButton
+		GameObject gridSizeDownButton = GameObject.Find ("GridSizeDownButton");
+		if (gridSizeDownButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure GridSizeDownButton is present");
+		}
+		gridSizeDownButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridSizeDown);
+
 		// Hook up GridUp method to GridUpButton
 		GameObject gridUpButton = GameObject.Find ("GridUpButton");
 		if (gridUpButton == null) {
@@ -572,6 +588,7 @@ public class LevelEditor : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.Z)) {
 				Undo ();
 			}
+	
 			// If Y is pressed, redo action
 			if(Input.GetKeyDown(KeyCode.Y)){
 				Redo ();

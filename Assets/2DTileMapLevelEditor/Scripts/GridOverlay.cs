@@ -42,6 +42,14 @@ public class GridOverlay : MonoBehaviour {
 		gridSizeY = y;
 	}
 
+	public void GridSizeUp(){
+		largeStep += 0.5f;
+	}
+
+	public void GridSizeDown(){
+		largeStep -= 0.5f;
+	}
+
 	public void GridUp(){
 		offsetY += smallStep;
 	}
@@ -59,7 +67,8 @@ public class GridOverlay : MonoBehaviour {
 	}
 
 	void OnPostRender()
-	{        
+	{  
+		largeStep = Mathf.Max (largeStep, 0.5f);
 		// set the current material
 		lineMaterial.SetPass (0);
 
