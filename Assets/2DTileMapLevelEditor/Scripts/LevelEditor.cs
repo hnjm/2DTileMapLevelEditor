@@ -281,12 +281,14 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
-	private void SetupGridButtons(){// Hook up ToggleGrid method to GridToggle
+	private void SetupGridButtons(){
+		// Hook up ToggleGrid method to GridToggle
 		GameObject gridEyeToggle = FindGameObjectOrError ("GridEyeToggle");
 		gridEyeImage = GameObject.Find ("GridEyeImage");
 		gridClosedEyeImage = GameObject.Find ("GridClosedEyeImage");
 		gridEyeToggleComponent = gridEyeToggle.GetComponent<Toggle> ();
 		gridEyeToggleComponent.onValueChanged.AddListener (ToggleGrid);
+		ToggleGrid (true);
 
 		// Hook up GridSizeUp method to GridSizeUpButton
 		GameObject gridSizeUpButton = FindGameObjectOrError ("GridSizeUpButton");
