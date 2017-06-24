@@ -1,6 +1,9 @@
 ﻿// Credit to damien_oconnell from http://forum.unity3d.com/threads/39513-Click-drag-camera-movement
 // for using the mouse displacement for calculating the amount of camera movement and panning code.
 
+
+// Slimmed down to only feature panning (zooming done in alternative way)
+
 using UnityEngine;
 using System.Collections;
 
