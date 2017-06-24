@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿// Include basic namespaces
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
@@ -61,10 +62,12 @@ public class LevelEditor : MonoBehaviour {
 
 	// Boolean to determine whether to show all layers or only the current one
 	private bool onlyShowCurrentLayer = false;
+	// UI objects to toggle onlyShowCurrentLayer
+	private Toggle onlyShowCurrentLayerToggleComponent;
 	private GameObject layerEyeImage;
 	private GameObject layerClosedEyeImage;
-	private Toggle onlyShowCurrentLayerToggleComponent;
 
+	// UI objects to toggle the grid
 	private GameObject gridEyeImage;
 	private GameObject gridClosedEyeImage;
 	private Toggle gridEyeToggleComponent;
@@ -78,18 +81,23 @@ public class LevelEditor : MonoBehaviour {
 	// The UI panel used to store the Level Editor options
 	private GameObject levelEditorPanel;
 
+	// Transform used to preview selected tile on map
 	private Transform previewTile;
 
+	// Stacks to keep track for undo and redo feature
 	private FiniteStack<int[,,]> undoStack;
 	private FiniteStack<int[,,]> redoStack;
 
+	// Main camera and components for zoom feature
 	private GameObject mainCamera;
 	private Camera mainCameraComponent;
 	private float mainCameraInitialSize;
 
+	// Boolean to determine whether to use fill mode or pencil mode
+	private bool fillMode = false;
+	// UI objects to display pencil/fill mode
 	private Image pencilModeButtonImage;
 	private Image fillModeButtonImage;
-	private bool fillMode = false;
 	public Texture2D fillCursor;
 	private static Color32 DisabledColor = new Color32 (150, 150, 150, 255);
 
@@ -110,16 +118,17 @@ public class LevelEditor : MonoBehaviour {
 	public void Start()
 	{
 		// Check the start values to prevent errors
-		CheckStartValues();
+		CheckStartValues ();
 
 		// Define the level sizes as the sizes for the grid
 		GridOverlay.instance.SetGridSizeX (WIDTH);
 		GridOverlay.instance.SetGridSizeY (HEIGHT);
 
-		// Find the camera and position it in the middle of our level
+		// Find the camera, position it in the middle of our level and store initial zoom level
 		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
 		if (mainCamera != null) {
 			mainCamera.transform.position = new Vector3 (WIDTH / 2, HEIGHT / 2, mainCamera.transform.position.z);
+			//Store initial zoom level
 			mainCameraComponent = mainCamera.GetComponent<Camera> ();
 			if (mainCameraComponent.orthographic) {
 				mainCameraInitialSize = mainCameraComponent.orthographicSize;
@@ -132,7 +141,7 @@ public class LevelEditor : MonoBehaviour {
 		}
 
 		// Get or create the tileLevelParent object so we can make it our newly created objects' parent
-		tileLevelParent = GameObject.Find("TileLevel");
+		tileLevelParent = GameObject.Find ("TileLevel");
 		if (tileLevelParent == null) {
 			tileLevelParent = new GameObject ("TileLevel");
 		}
@@ -141,8 +150,26 @@ public class LevelEditor : MonoBehaviour {
 		level = CreateEmptyLevel ();
 		gameObjects = new Transform[WIDTH, HEIGHT, LAYERS];
 
+		// Instantiate the undo and redo stack
 		undoStack = new FiniteStack<int[,,]> ();
 		redoStack = new FiniteStack<int[,,]> ();
+
+		SetupUI ();
+	}
+
+	// Method that checks public variables values and sets them to valid defaults when necessary
+	private void CheckStartValues()
+	{
+		WIDTH = Mathf.Clamp (WIDTH, 1, WIDTH);
+		HEIGHT = Mathf.Clamp (HEIGHT, 1, HEIGHT);
+		LAYERS = Mathf.Clamp (LAYERS, 1, LAYERS);
+		buttonHeight = Mathf.Clamp (buttonHeight, 1, buttonHeight);
+		buttonWidth = Mathf.Clamp (buttonHeight, 1, buttonHeight);
+		buttonImageScale = Mathf.Clamp01 (buttonImageScale);
+		fileExtension = fileExtension.Trim () == "" ? "lvl" : fileExtension;
+	}
+
+	private void SetupUI(){
 
 		//------ UI ---------
 
@@ -154,6 +181,23 @@ public class LevelEditor : MonoBehaviour {
 		}
 		Instantiate (levelEditorUIPrefab, canvas.transform);
 
+		// Instantiate the LevelEditorPanel
+		levelEditorPanel = GameObject.Find ("LevelEditorPanel");
+		if (levelEditorPanel == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure LevelEditorPanel is present");
+		}
+		SetupSaveLoadButton ();
+		SetupUndoRedoButton ();
+		SetupModeButtons ();
+		SetupZoomButtons ();
+		SetupLayerButtons ();
+		SetupGridButtons ();
+		SetupOpenCloseButton ();
+		SetupPrefabsButtons ();
+	}
+
+	private void SetupSaveLoadButton(){
 		// Hook up SaveLevel method to SaveButton
 		GameObject saveButton = GameObject.Find ("SaveButton");
 		if (saveButton == null) {
@@ -169,7 +213,9 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure LoadButton is present");
 		}
 		loadButton.GetComponent<Button>().onClick.AddListener (LoadLevel);
+	}
 
+	private void SetupUndoRedoButton(){
 		// Hook up Undo method to UndoButton
 		GameObject undoButton = GameObject.Find ("UndoButton");
 		if (undoButton == null) {
@@ -185,7 +231,31 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure RedoButton is present");
 		}
 		redoButton.GetComponent<Button>().onClick.AddListener (Redo);
+	}
 
+	private void SetupModeButtons(){
+		// Hook up EnablePencilMode method to PencilButton
+		GameObject pencilModeButton = GameObject.Find ("PencilButton");
+		if (pencilModeButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure PencilModeButton is present");
+		}
+		pencilModeButton.GetComponent<Button>().onClick.AddListener (DisableFillMode);
+		pencilModeButtonImage = pencilModeButton.GetComponent<Image> ();
+
+		// Hook up EnableFillMode method to FillButton
+		GameObject fillModeButton = GameObject.Find ("FillButton");
+		if (fillModeButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure FillModeButton is present");
+		}
+		fillModeButton.GetComponent<Button>().onClick.AddListener  (EnableFillMode);
+		fillModeButtonImage = fillModeButton.GetComponent<Image> ();
+
+		DisableFillMode ();
+	}
+
+	private void SetupZoomButtons(){
 		// Hook up ZoomIn method to ZoomInButton
 		GameObject zoomInButton = GameObject.Find ("ZoomInButton");
 		if (zoomInButton == null) {
@@ -209,14 +279,16 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure ZoomDefaultButton is present");
 		}
 		zoomDefaultButton.GetComponent<Button>().onClick.AddListener (ZoomDefault);
+	}
 
+	public void SetupLayerButtons(){
 		// Hook up LayerUp method to +LayerButton
 		GameObject plusLayerButton = GameObject.Find ("+LayerButton");
 		if (plusLayerButton == null) {
 			errorCounter++;
 			Debug.LogError ("Make sure +LayerButton is present");
 		}
-		plusLayerButton.GetComponent<Button>().onClick.AddListener (LayerUp);
+		plusLayerButton.GetComponent<Button> ().onClick.AddListener (LayerUp);
 
 		// Hook up LayerDown method to -LayerButton
 		GameObject minusLayerButton = GameObject.Find ("-LayerButton");
@@ -224,7 +296,7 @@ public class LevelEditor : MonoBehaviour {
 			errorCounter++;
 			Debug.LogError ("Make sure -LayerButton is present");
 		}
-		minusLayerButton.GetComponent<Button>().onClick.AddListener (LayerDown);
+		minusLayerButton.GetComponent<Button> ().onClick.AddListener (LayerDown);
 
 		// Hook up ToggleOnlyShowCurrentLayer method to OnlyShowCurrentLayerToggle
 		GameObject onlyShowCurrentLayerToggle = GameObject.Find ("OnlyShowCurrentLayerToggle");
@@ -237,27 +309,15 @@ public class LevelEditor : MonoBehaviour {
 		onlyShowCurrentLayerToggleComponent = onlyShowCurrentLayerToggle.GetComponent<Toggle> ();
 		onlyShowCurrentLayerToggleComponent.onValueChanged.AddListener (ToggleOnlyShowCurrentLayer);
 
-		// Hook up EnablePencilMode method to PencilButton
-		GameObject pencilModeButton = GameObject.Find ("PencilButton");
-		if (pencilModeButton == null) {
+		// Instantiate the LayerText game object to display the current layer
+		layerText = GameObject.Find ("LayerText").GetComponent<Text> ();
+		if (layerText == null) {
 			errorCounter++;
-			Debug.LogError ("Make sure PencilModeButton is present");
+			Debug.LogError ("Make sure LayerText is present");
 		}
-		pencilModeButton.GetComponent<Button>().onClick.AddListener (DisableFillMode);
-		pencilModeButtonImage = pencilModeButton.GetComponent<Image> ();
+	}
 
-		// Hook up EnableFillMode method to FillButton
-		GameObject fillModeButton = GameObject.Find ("FillButton");
-		if (fillModeButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure FillModeButton is present");
-		}
-		fillModeButton.GetComponent<Button>().onClick.AddListener  (EnableFillMode);
-		fillModeButtonImage = fillModeButton.GetComponent<Image> ();
-
-		DisableFillMode ();
-
-		// Hook up ToggleGrid method to GridToggle
+	private void SetupGridButtons(){// Hook up ToggleGrid method to GridToggle
 		GameObject gridEyeToggle = GameObject.Find ("GridEyeToggle");
 		if (gridEyeToggle == null) {
 			errorCounter++;
@@ -315,7 +375,9 @@ public class LevelEditor : MonoBehaviour {
 			Debug.LogError ("Make sure GridRightButton is present");
 		}
 		gridRightButton.GetComponent<Button>().onClick.AddListener (GridOverlay.instance.GridRight);
+	}
 
+	private void SetupOpenCloseButton(){
 		// Hook up CloseLevelEditorPanel method to CloseButton
 		GameObject closeButton = GameObject.Find ("CloseButton");
 		if (closeButton == null) {
@@ -324,6 +386,18 @@ public class LevelEditor : MonoBehaviour {
 		}
 		closeButton.GetComponent<Button>().onClick.AddListener (CloseLevelEditorPanel);
 
+		// Instantiate the OpenButton
+		openButton = GameObject.Find ("OpenButton");
+		if (openButton == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure OpenButton is present");
+		} else {
+			openButton.SetActive(false);
+			openButton.GetComponent<Button>().onClick.AddListener (OpenLevelEditorPanel);
+		}
+	}
+
+	private void SetupPrefabsButtons(){
 		// Find the prefabParent object and set the cellSize for the tile selection buttons
 		prefabParent = GameObject.Find ("Prefabs");
 		if (prefabParent == null || prefabParent.GetComponent<GridLayoutGroup> () == null) {
@@ -349,43 +423,8 @@ public class LevelEditor : MonoBehaviour {
 			});
 			tileCounter++;
 		}
-
-		// Instantiate the LayerText
-		layerText = GameObject.Find ("LayerText").GetComponent<Text> ();
-		if (layerText == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure LevelEditorPrefab is present");
-		}
-		// Instantiate the OpenButton
-		openButton = GameObject.Find ("OpenButton");
-		if (openButton == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure OpenButton is present");
-		} else {
-			openButton.SetActive(false);
-			openButton.GetComponent<Button>().onClick.AddListener (OpenLevelEditorPanel);
-		}
-
-		// Instantiate the LevelEditorPanel
-		levelEditorPanel = GameObject.Find ("LevelEditorPanel");
-		if (levelEditorPanel == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure LevelEditorPanel is present");
-		}
 	}
-
-	// Method that checks public variables values and sets them to valid defaults when necessary
-	private void CheckStartValues()
-	{
-		WIDTH = Mathf.Clamp (WIDTH, 1, WIDTH);
-		HEIGHT = Mathf.Clamp (HEIGHT, 1, HEIGHT);
-		LAYERS = Mathf.Clamp (LAYERS, 1, LAYERS);
-		buttonHeight = Mathf.Clamp (buttonHeight, 1, buttonHeight);
-		buttonWidth = Mathf.Clamp (buttonHeight, 1, buttonHeight);
-		buttonImageScale = Mathf.Clamp01 (buttonImageScale);
-		fileExtension = fileExtension.Trim () == "" ? "lvl" : fileExtension;
-	}
-
+		
 	// Method to switch selectedTile on tile selection
 	private void ButtonClick (int tileIndex)
 	{
