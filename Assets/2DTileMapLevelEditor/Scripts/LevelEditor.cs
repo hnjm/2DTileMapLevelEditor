@@ -506,16 +506,20 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Fill from position recursively. Only fill if the position is valid and empty
-	void Fill(int posX, int posY){
+	void Fill(int posX, int posY, bool undoPush){
 		// Check valid and empty
 		if (ValidPosition (posX, posY, selectedLayer) && level [posX, posY, selectedLayer] == EMPTY) {
+			if (undoPush) {
+				// Push level on undoStack since it is going to change
+				undoStack.Push (level.Clone () as int[,,]);
+			}
 			// Create a block on the position
 			CreateBlock (selectedTile, posX, posY, selectedLayer);
 			// Fill x+1, x-1, y+1, y-1
-			Fill (posX + 1, posY);
-			Fill (posX - 1, posY);
-			Fill (posX, posY + 1);
-			Fill (posX, posY - 1);
+			Fill (posX + 1, posY, false);
+			Fill (posX - 1, posY, false);
+			Fill (posX, posY + 1, false);
+			Fill (posX, posY - 1, false);
 		}
 	}
 
@@ -576,7 +580,7 @@ public class LevelEditor : MonoBehaviour {
 			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
 				// If fill mode, fill, else click position (pencil mode)
 				if (fillMode) {
-					Fill (posX, posY);
+					Fill (posX, posY, true);
 				} else {
 					ClickedPosition (posX, posY);
 				}
