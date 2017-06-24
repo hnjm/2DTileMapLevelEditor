@@ -13,6 +13,7 @@ using System.IO;
 
 //Include for Unity UI
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class LevelEditor : MonoBehaviour {
 
@@ -592,16 +593,16 @@ public class LevelEditor : MonoBehaviour {
 			if (!ValidPosition (posX, posY, selectedLayer)) {
 				return;
 			}
-			// Left click - Create object
-			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0) {
+			// Left click - Create object (check hotControl and not over UI)
+			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
 				if (fillMode) {
 					Fill (posX, posY);
 				} else {
 					ClickBlock (posX, posY);
 				}
 			}
-			// Right clicking - Delete object
-			if (Input.GetMouseButton (1) && GUIUtility.hotControl == 0) {
+			// Right clicking - Delete object (check hotControl and not over UI)
+			if (Input.GetMouseButton (1) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
 				// If we hit something (!= EMPTY), we want to destroy the object and update the gameObject array and level array
 				if (level [posX, posY, selectedLayer] != EMPTY) {
 					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
