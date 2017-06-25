@@ -47,7 +47,7 @@ public class GridOverlay : MonoBehaviour {
 		gridSizeX = x;
 	}
 
-	// Changes the heigth size of the grid
+	// Changes the height size of the grid
 	public void SetGridSizeY(int y){
 		gridSizeY = y;
 	}

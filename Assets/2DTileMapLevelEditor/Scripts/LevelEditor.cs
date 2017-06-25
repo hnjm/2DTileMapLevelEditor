@@ -380,7 +380,7 @@ public class LevelEditor : MonoBehaviour {
 		return emptyLevel;
 	}
 
-	// Method to determine for a given x, y, z, whether the position is valid (within Width, Heigh and Layers)
+	// Method to determine for a given x, y, z, whether the position is valid (within Width, Height and Layers)
 	private bool ValidPosition(int x, int y, int z)
 	{
 		if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT || z < 0 || z >= LAYERS) {
@@ -747,7 +747,7 @@ public class LevelEditor : MonoBehaviour {
 		return result;
 	}
 
-	// Method that return the parent GameObject for a layer
+	// Method that returns the parent GameObject for a layer
 	private GameObject GetLayerParent(int layer)
 	{
 		if (!layerParents.ContainsKey (layer)) {
