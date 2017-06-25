@@ -23,4 +23,4 @@ The 2D Tile Map Level Editor allows users to create levels intuitively and fast 
 - Dynamic grid overlay to visualize tile placement
 - Fill up empty spaces with one click
 
-For a content description, setup instructures, controls/hotkeys and more please see the [wiki](https://github.com/GracesGames/2DTileMapLevelEditor/wiki)
+For a content description, setup instructions, controls/hotkeys and more please see the [wiki](https://github.com/GracesGames/2DTileMapLevelEditor/wiki)
