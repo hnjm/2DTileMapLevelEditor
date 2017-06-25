@@ -15,8 +15,6 @@ The 2D Tile Map Level Editor allows users to create levels intuitively and fast 
 - Allow players to create and share their own levels
 - Test and change at run-time for quick iterations 
 - Open source and fully customizable to support the needs of your game
-
-
 - Save and load the levels 
 - Use different layers to create depth
 - Undo and redo functionality
