@@ -760,6 +760,11 @@ public class LevelEditor : MonoBehaviour {
 		return layerParents [layer];
 	}
 
+	// Returns whether the script is enabled (e.g. whether input is registered) 
+	public bool GetScriptEnabled(){
+		return scriptEnabled;
+	}
+
 	// Close the level editor panel, test level mode
 	public void CloseLevelEditorPanel ()
 	{
@@ -774,6 +779,13 @@ public class LevelEditor : MonoBehaviour {
 		levelEditorPanel.SetActive (true);
 		openButton.SetActive(false);
 		scriptEnabled = true;
+	}
+
+	// Enables/disables the level editor, (script, overlay and panel)
+	public void ToggleLevelEditor(bool enabled){
+		scriptEnabled = enabled;
+		GridOverlay.instance.enabled = enabled;
+		levelEditorPanel.SetActive (enabled);
 	}
 
 	// Save the level to a file
