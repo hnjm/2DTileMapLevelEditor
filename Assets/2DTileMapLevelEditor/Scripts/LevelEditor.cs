@@ -362,6 +362,9 @@ public class LevelEditor : MonoBehaviour {
 			DestroyImmediate (previewTile.gameObject);
 		}
 		previewTile = Instantiate (tiles [selectedTile], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100), Quaternion.identity) as Transform;
+		foreach (Collider2D c in previewTile.GetComponents<Collider2D>()) {
+			c.enabled = false;
+		}
 	}
 
 	// Method to create an empty level by looping through the Height, Width and Layers 
