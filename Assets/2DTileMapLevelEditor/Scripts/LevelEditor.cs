@@ -112,7 +112,6 @@ public class LevelEditor : MonoBehaviour {
 		else if(instance != this){
 			Destroy(gameObject);
 		}
-		DontDestroyOnLoad(gameObject);
 	}
 
 	// Method to instantiate the dependencies and variables
