@@ -879,6 +879,18 @@ public class LevelEditor : MonoBehaviour {
 		}
 	}
 
+	public void LoadLevelUsingStringPath(string path){
+		BinaryFormatter bFormatter = new BinaryFormatter ();
+		// Reset the level
+		ResetBeforeLoad ();
+		FileStream file = File.OpenRead (path);
+		// Convert the file from a byte array into a string
+		string levelData = bFormatter.Deserialize (file) as string;
+		// We're done working with the file so we can close it
+		file.Close ();
+		LoadLevelFromStringLayers (levelData);
+	}
+
 	// Method that loads the layers
 	void LoadLevelFromStringLayers(string content)
 	{
