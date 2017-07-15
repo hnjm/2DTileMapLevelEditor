@@ -53,11 +53,24 @@ public class LevelEditor : MonoBehaviour {
 	private GameObject prefabParent;
 	// Button Prefab used to create tile selection buttons for each GameObjects.
 	public GameObject buttonPrefab;
+
+	// Dimension used to set the width of the GameObject tile container object
+	// Represented using a 0-500 slider in the editor
+	[Range(0.0f, 500.0f)]
+	public float PrefabsContainerWidth = 300f;
 	// Dimensions used for the representation of the GameObject tile selection buttons
-	public int buttonHeight = 100;
-	public int buttonWidth = 100;
+	// Represented using a 0-200 slider in the editor
+	[Range(0.0f, 200.0f)]
+	public float buttonSize = 100;
+
 	// GameObject used to show the currently selected tile
 	private GameObject selectedTile;
+	// Dimensions used for the representation of the selected tile game object
+	// Represented using a 0-200 slider in the editor
+	[Range(0.0f, 200.0f)]
+	public float selectedTileSize = 100;
+
+	// Scale of the images in regards to the total image rectangle size
 	public float buttonImageScale = 0.8f;
 
 	// Image to indicate the currently selected tile
@@ -170,8 +183,7 @@ public class LevelEditor : MonoBehaviour {
 		WIDTH = Mathf.Clamp (WIDTH, 1, WIDTH);
 		HEIGHT = Mathf.Clamp (HEIGHT, 1, HEIGHT);
 		LAYERS = Mathf.Clamp (LAYERS, 1, LAYERS);
-		buttonHeight = Mathf.Clamp (buttonHeight, 1, buttonHeight);
-		buttonWidth = Mathf.Clamp (buttonHeight, 1, buttonHeight);
+		buttonSize = Mathf.Clamp (buttonSize, 1, buttonSize);
 		buttonImageScale = Mathf.Clamp01 (buttonImageScale);
 		fileExtension = fileExtension.Trim () == "" ? "lvl" : fileExtension;
 	}
@@ -341,8 +353,11 @@ public class LevelEditor : MonoBehaviour {
 			errorCounter++;
 			Debug.LogError ("Make sure prefabParent is present and has a GridLayoutGroup component");
 		} else {
-			prefabParent.GetComponent<GridLayoutGroup> ().cellSize = new Vector2 (buttonHeight, buttonWidth);
+			// Update the size, to scale the buttons
+			UpdatePrefabButtonsSize ();
 		}
+		// Set the width of the prefabParent object, using the initially set value
+		UpdatePrefabParentWidth();
 
 		// Counter to determine which tile button is pressed
 		int tileCounter = 0;
@@ -578,11 +593,18 @@ public class LevelEditor : MonoBehaviour {
 		fillModeButtonImage.GetComponent<Image>().color = DisabledColor;
 	}
 
-	// Method that updates layer text and handles creation and deletion on click
+	// Method that updates the UI and handles creation and deletion on click
 	void Update()
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
+			// Update the width to scale at runtime
+			UpdatePrefabParentWidth ();
+			// Update the button size to scale at runtime
+			UpdatePrefabButtonsSize();
+			// Update the selected tile game object to scale at runtime
+			UpdateSelectedTileSize();
+
 			// Save the world point were the mouse clicked
 			Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 			// Update fill mode cursor
@@ -602,12 +624,35 @@ public class LevelEditor : MonoBehaviour {
 			// Deal with the mouse being not exactly on a block
 			int posX = Mathf.FloorToInt (pos.x + .5f);
 			int posY = Mathf.FloorToInt (pos.y + .5f);
-			// Return if the value is not valid
-			if (!ValidPosition (posX, posY, selectedLayer)) {
-				return;
+			// Handle input only when a valid position is clicked
+			if (ValidPosition (posX, posY, selectedLayer)) {
+				HandleInput (posX, posY);
 			}
-			// Left click - Create object (check hotControl and not over UI)
-			if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
+		}
+	}
+
+	// Update the width of the prefabParent object, the height will be scaled automatically
+	void UpdatePrefabParentWidth(){
+		prefabParent.GetComponent<RectTransform> ().sizeDelta = new Vector2 (PrefabsContainerWidth, 100f);
+	}
+
+	// Update the size of the prefab tile objects, the images will be square to keep the aspect ratio original
+	void UpdatePrefabButtonsSize(){
+		prefabParent.GetComponent<GridLayoutGroup> ().cellSize = new Vector2 (buttonSize, buttonSize);
+	}
+
+	// Update the size of the selected tile game object, the images will be scaled to half that
+	void UpdateSelectedTileSize(){
+		selectedTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (selectedTileSize, selectedTileSize);
+		selectedTileImage.GetComponent<RectTransform> ().sizeDelta = new Vector2 (selectedTileSize/2, selectedTileSize/2);
+	}
+
+	// Check for mouse button clicks and handle accordingly
+	void HandleInput(int posX, int posY){
+		// Left click - Create object (check hotControl and not over UI)
+		if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
+			// Only allow additions if the selectedTile is not EMPTY (cannot add/fill nothing)
+			if (selectedTileIndex != EMPTY) {
 				// If fill mode, fill, else click position (pencil mode)
 				if (fillMode) {
 					Fill (posX, posY, true);
@@ -615,17 +660,19 @@ public class LevelEditor : MonoBehaviour {
 					ClickedPosition (posX, posY);
 				}
 			}
-			// Right clicking - Delete object (check hotControl and not over UI)
-			if (Input.GetMouseButton (1) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
-				// If we hit something (!= EMPTY), we want to destroy the object and update the gameObject array and level array
-				if (level [posX, posY, selectedLayer] != EMPTY) {
-					DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
-					level [posX, posY, selectedLayer] = EMPTY;
-				} 
-				// If we hit nothing and previewTile is null, remove it
-				else if (previewTile != null) {
-					DestroyImmediate (previewTile.gameObject);
-				}
+		}
+		// Right clicking - Delete object (check hotControl and not over UI)
+		if (Input.GetMouseButton (1) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
+			// If we hit something (!= EMPTY), we want to destroy the object and update the gameObject array and level array
+			if (level [posX, posY, selectedLayer] != EMPTY) {
+				DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
+				level [posX, posY, selectedLayer] = EMPTY;
+			} 
+			// If we hit nothing and previewTile is null, remove it
+			else if (previewTile != null) {
+				DestroyImmediate (previewTile.gameObject);
+				// Set selected tile and image to EMPTY
+				SetSelectedTile (EMPTY);
 			}
 		}
 	}
@@ -648,7 +695,7 @@ public class LevelEditor : MonoBehaviour {
 	private void UpdatePreviewTilePosition(Vector3 worldMousePosition){
 		if (previewTile != null) {
 			if (ValidPosition ((int)worldMousePosition.x, (int)worldMousePosition.y, 0)) {
-				previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), 100);
+				previewTile.position = new Vector3 (Mathf.RoundToInt (worldMousePosition.x), Mathf.RoundToInt (worldMousePosition.y), -1);
 			}
 		}
 	}

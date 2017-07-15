@@ -57,8 +57,9 @@ MonoBehaviour:
   tiles: []
   buttonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
     type: 2}
-  buttonHeight: 70
-  buttonWidth: 70
+  PrefabsContainerWidth: 300
+  buttonSize: 100
+  selectedTileSize: 100
   buttonImageScale: 0.8
   noSelectedTileImage: {fileID: 21300000, guid: b0aa86e0f4ec845b295e83ba21730cd6,
     type: 3}
