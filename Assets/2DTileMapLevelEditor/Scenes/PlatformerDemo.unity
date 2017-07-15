@@ -154,6 +154,11 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
+      propertyPath: PrefabsContainerWidth
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
       propertyPath: tiles.Array.data[0]
       value: 
       objectReference: {fileID: 4000010041083728, guid: f4a7e24c932b14c6488bda2f47a7ff45,
@@ -190,12 +195,6 @@ Prefab:
         type: 2}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
-      propertyPath: tiles.Array.data[9]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: e30cc65ad371442cca0dddf9cc71b51c,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
       propertyPath: tiles.Array.data[6]
       value: 
       objectReference: {fileID: 4000010041083728, guid: cf524a5442a29460095163d69c9ba515,
@@ -214,14 +213,10 @@ Prefab:
         type: 2}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
-      propertyPath: HEIGHT
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+      propertyPath: tiles.Array.data[9]
+      value: 
+      objectReference: {fileID: 4000010041083728, guid: e30cc65ad371442cca0dddf9cc71b51c,
         type: 2}
-      propertyPath: WIDTH
-      value: 16
-      objectReference: {fileID: 0}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
       propertyPath: tiles.Array.data[10]
@@ -242,58 +237,14 @@ Prefab:
         type: 2}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
-      propertyPath: tiles.Array.data[13]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: fad4740a6088f4364b5dddc7caee2a6a,
-        type: 2}
+      propertyPath: HEIGHT
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
         type: 2}
-      propertyPath: tiles.Array.data[14]
-      value: 
-      objectReference: {fileID: 4000013102667656, guid: 316a8557d38a54a2989f1ea1171f2a18,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[15]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: 46266abbd7d62496b97d38f5f3448689,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[16]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: 04d2aa2b3235d4f96a9bc3453962b46e,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[17]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: 9ddaf934523c14d3ea69f1ff31e74a74,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[18]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: e30cc65ad371442cca0dddf9cc71b51c,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[19]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: b03ff37209fbc4a5b838776400df6abb,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[20]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: 6a94c817bb06d43ed86b967bed96d531,
-        type: 2}
-    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
-        type: 2}
-      propertyPath: tiles.Array.data[21]
-      value: 
-      objectReference: {fileID: 4000010041083728, guid: b1703c8734925405e848b4976d8c7b73,
-        type: 2}
+      propertyPath: buttonSize
+      value: 100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 840ad8b7ad2c249179d3bc1e62ace2f2, type: 2}
   m_IsPrefabParent: 0

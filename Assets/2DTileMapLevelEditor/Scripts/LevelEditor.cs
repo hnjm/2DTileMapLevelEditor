@@ -40,8 +40,8 @@ public class LevelEditor : MonoBehaviour {
 	// Public so the user can add all user-created prefabs
 	public List<Transform> tiles;
 
-	// Used to store the currently selected tile and layer
-	private int selectedTile = 0;
+	// Used to store the currently selected tile index and layer
+	private int selectedTileIndex = EMPTY;
 	private int selectedLayer = 0;
 
 	// GameObject as the parent for all the layers (to keep the Hierarchy window clean)
@@ -56,7 +56,14 @@ public class LevelEditor : MonoBehaviour {
 	// Dimensions used for the representation of the GameObject tile selection buttons
 	public int buttonHeight = 100;
 	public int buttonWidth = 100;
+	// GameObject used to show the currently selected tile
+	private GameObject selectedTile;
 	public float buttonImageScale = 0.8f;
+
+	// Image to indicate the currently selected tile
+	private Image selectedTileImage;
+	// Sprite to indicate no tile is currently selected
+	public Sprite noSelectedTileImage;
 
 	// File extension used to save and load the levels
 	public string fileExtension = "lvl";
@@ -195,6 +202,7 @@ public class LevelEditor : MonoBehaviour {
 		SetupGridButtons ();
 		SetupOpenCloseButton ();
 		SetupPrefabsButtons ();
+		SetupSelectedTile ();
 	}
 
 	private GameObject FindGameObjectOrError(string name){
@@ -353,15 +361,35 @@ public class LevelEditor : MonoBehaviour {
 			tileCounter++;
 		}
 	}
+
+	private void SetupSelectedTile(){
+		selectedTile = FindGameObjectOrError("SelectedTile");
+		// Find the image component of the SelectedTileImage GameObject
+		selectedTileImage = FindGameObjectOrError ("SelectedTileImage").GetComponent<Image>();
+		// Set the SelectedTile to Empty (-1) and update the selectedTileImage
+		SetSelectedTile (EMPTY);
+	}
+
+	// Method to set the selectedTile variable and the selectedTileImage
+	private void SetSelectedTile (int tileIndex){
+		// Update selectedTile variable
+		selectedTileIndex = tileIndex;
+		// If EMPTY, set selectedTileImage to noSelectedTileImage else to the corresponding Prefab tile image
+		if (tileIndex == EMPTY) {
+			selectedTileImage.sprite = noSelectedTileImage;
+		} else {
+			selectedTileImage.sprite = tiles [tileIndex].gameObject.GetComponent<SpriteRenderer> ().sprite;
+		}
+	}
 		
 	// Method to switch selectedTile on tile selection
 	private void ButtonClick (int tileIndex)
 	{
-		selectedTile = tileIndex;
+		SetSelectedTile (tileIndex);
 		if (previewTile != null) {
 			DestroyImmediate (previewTile.gameObject);
 		}
-		previewTile = Instantiate (tiles [selectedTile], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100), Quaternion.identity) as Transform;
+		previewTile = Instantiate (tiles [selectedTileIndex], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100), Quaternion.identity) as Transform;
 		foreach (Collider2D c in previewTile.GetComponents<Collider2D>()) {
 			c.enabled = false;
 		}
@@ -495,7 +523,7 @@ public class LevelEditor : MonoBehaviour {
 	// Clicked on position, so check if it is the same, and (destroy and) build if neccesary
 	void ClickedPosition(int posX, int posY){
 		// If it's the same, just keep the previous one and do nothing, else (destroy and) build
-		if (level [posX, posY, selectedLayer] != selectedTile) {
+		if (level [posX, posY, selectedLayer] != selectedTileIndex) {
 			// Push level on undoStack since it is going to change
 			undoStack.Push (level.Clone () as int[,,]);
 			// If the position is not empty, destroy the the current element (using gameObjects array)
@@ -503,7 +531,7 @@ public class LevelEditor : MonoBehaviour {
 				DestroyImmediate (gameObjects [posX, posY, selectedLayer].gameObject);
 			}
 			// Create the new game object
-			CreateBlock (selectedTile, posX, posY, selectedLayer);
+			CreateBlock (selectedTileIndex, posX, posY, selectedLayer);
 		}
 	}
 
@@ -516,7 +544,7 @@ public class LevelEditor : MonoBehaviour {
 				undoStack.Push (level.Clone () as int[,,]);
 			}
 			// Create a block on the position
-			CreateBlock (selectedTile, posX, posY, selectedLayer);
+			CreateBlock (selectedTileIndex, posX, posY, selectedLayer);
 			// Fill x+1, x-1, y+1, y-1
 			Fill (posX + 1, posY, false);
 			Fill (posX - 1, posY, false);
@@ -741,7 +769,7 @@ public class LevelEditor : MonoBehaviour {
 		bool result = true;
 		for (int x = 0; x < WIDTH; x++) {
 			for (int y = 0; y < HEIGHT; y++) {
-				if (level [x, y, layer] != -1) {
+				if (level [x, y, layer] != EMPTY) {
 					result = false;
 				}
 			}
