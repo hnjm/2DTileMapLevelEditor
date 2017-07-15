@@ -213,8 +213,8 @@ public class LevelEditor : MonoBehaviour {
 		SetupLayerButtons ();
 		SetupGridButtons ();
 		SetupOpenCloseButton ();
-		SetupPrefabsButtons ();
 		SetupSelectedTile ();
+		SetupPrefabsButtons ();
 	}
 
 	private GameObject FindGameObjectOrError(string name){
@@ -346,6 +346,14 @@ public class LevelEditor : MonoBehaviour {
 		openButton.SetActive (false);
 	}
 
+	private void SetupSelectedTile(){
+		selectedTile = FindGameObjectOrError("SelectedTile");
+		// Find the image component of the SelectedTileImage GameObject
+		selectedTileImage = FindGameObjectOrError ("SelectedTileImage").GetComponent<Image>();
+		// Set the SelectedTile to Empty (-1) and update the selectedTileImage
+		SetSelectedTile (EMPTY);
+	}
+
 	private void SetupPrefabsButtons(){
 		// Find the prefabParent object and set the cellSize for the tile selection buttons
 		prefabParent = GameObject.Find ("Prefabs");
@@ -375,14 +383,6 @@ public class LevelEditor : MonoBehaviour {
 			});
 			tileCounter++;
 		}
-	}
-
-	private void SetupSelectedTile(){
-		selectedTile = FindGameObjectOrError("SelectedTile");
-		// Find the image component of the SelectedTileImage GameObject
-		selectedTileImage = FindGameObjectOrError ("SelectedTileImage").GetComponent<Image>();
-		// Set the SelectedTile to Empty (-1) and update the selectedTileImage
-		SetSelectedTile (EMPTY);
 	}
 
 	// Method to set the selectedTile variable and the selectedTileImage
@@ -634,6 +634,7 @@ public class LevelEditor : MonoBehaviour {
 	// Update the width of the prefabParent object, the height will be scaled automatically
 	void UpdatePrefabParentWidth(){
 		prefabParent.GetComponent<RectTransform> ().sizeDelta = new Vector2 (PrefabsContainerWidth, 100f);
+		selectedTile.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (-PrefabsContainerWidth, 0);
 	}
 
 	// Update the size of the prefab tile objects, the images will be square to keep the aspect ratio original
