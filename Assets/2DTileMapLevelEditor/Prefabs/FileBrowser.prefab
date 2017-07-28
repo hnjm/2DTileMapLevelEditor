@@ -54,5 +54,8 @@ MonoBehaviour:
   timeBetweenClicks: 0.5
   fileBrowserButtonPrefab: {fileID: 1781446219088990, guid: c50a28e362f5046f1b365259e51af4c5,
     type: 2}
-  fileBrowserUIPrefab: {fileID: 1555834192778780, guid: e246cc6e9fd91465a9045cee33e07e0a,
+  fileBrowserUIPrefab: {fileID: 1640941191724696, guid: e246cc6e9fd91465a9045cee33e07e0a,
     type: 2}
+  fileFilter: 
+  saveImage: {fileID: 21300000, guid: 246e1a8e6ee9147b595267a05a5e8d73, type: 3}
+  loadImage: {fileID: 21300000, guid: bcac61915feda41c2840db8963b97615, type: 3}

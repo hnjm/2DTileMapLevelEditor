@@ -13,7 +13,7 @@ public class FileBrowser : MonoBehaviour {
 	private string selectedFile;
 
 	private GameObject directoryUpButton;
-	public float timeBetweenClicks = 0.5f;  // Allow 2 clicks per second
+	public float timeBetweenClicks = 0.3f;  // Allow 3 clicks per second
 	private float timestamp;
 
 	private GameObject closeFileBrowserButton;
@@ -21,7 +21,8 @@ public class FileBrowser : MonoBehaviour {
 
 
 	private GameObject pathText;
-	private GameObject fileText;
+	private GameObject saveFileText;
+	private GameObject loadFileText;
 
 	// GameObject as the parent for all the GameObject in the tiles selection
 	private GameObject directoriesParent;
@@ -36,9 +37,19 @@ public class FileBrowser : MonoBehaviour {
 
 	public string fileFilter = null;
 
+	private string saveFileName;
+
+	private MonoBehaviour other = null;
+	private string callbackMethod;
+
+	private bool saving;
+
+	public Sprite saveImage;
+	public Sprite loadImage;
+
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 
 		//------ UI ---------
 
@@ -78,14 +89,30 @@ public class FileBrowser : MonoBehaviour {
 		});
 
 		selectFileButton = FindGameObjectOrError ("SelectFileButton");
-		pathText = FindGameObjectOrError ("PathText");
-		fileText = FindGameObjectOrError ("FileText");
+		selectFileButton.GetComponent<Button> ().onClick.AddListener (() => {
+			SelectFileButtonClick ();
+		});
 
-		pathText.GetComponent<Text> ().text = "Path: " + currentPath;
-		fileText.GetComponent<Text> ().text = "File: " + currentFile;
+		pathText = FindGameObjectOrError ("PathText");
+		loadFileText = FindGameObjectOrError ("LoadFileText");
+		saveFileText = FindGameObjectOrError ("SaveFileText");
+
+		saveFileText.GetComponent<InputField> ().onEndEdit.AddListener (SetSaveFileName);
 
 
 		directoriesParent = GameObject.Find ("Directories");
+		filesParent = GameObject.Find ("Files");
+		UpdateFileBrowser ();
+	}
+
+	private void UpdateFileBrowser(){
+		if (pathText != null && pathText.GetComponent<Text> () != null) {
+			pathText.GetComponent<Text> ().text = currentPath;
+		}
+		if (loadFileText != null && loadFileText.GetComponent<Text> () != null) {
+			loadFileText.GetComponent<Text> ().text = currentFile;
+		}
+
 		if (directoriesParent.transform.childCount > 0) {
 			foreach (Transform child in directoriesParent.transform) {
 				GameObject.Destroy(child.gameObject);
@@ -101,7 +128,6 @@ public class FileBrowser : MonoBehaviour {
 			});
 		}
 
-		filesParent = GameObject.Find ("Files");
 		if (filesParent.transform.childCount > 0) {
 			foreach (Transform child in filesParent.transform) {
 				GameObject.Destroy(child.gameObject);
@@ -117,27 +143,33 @@ public class FileBrowser : MonoBehaviour {
 				FileBrowserFileButtonClick (file);
 			});
 		}
-
 	}
 
 	// Method to switch selectedTile on tile selection
 	private void FileBrowserDirectoryButtonClick (string path)
 	{
 		currentPath = path;
-		SetupFileBrowserTest ();
+		UpdateFileBrowser ();
 	}
 
 
 	// Method to switch selectedTile on tile selection
-	private void FileBrowserFileButtonClick (string file)
+	private void FileBrowserFileButtonClick (string clickedFile)
 	{
-		currentFile = file;
-		SetupFileBrowserTest ();
+		if (saving) {
+			string clickedFileName = Path.GetFileName (clickedFile);
+			saveFileName = clickedFileName;
+			saveFileText.GetComponent<InputField> ().text = Path.GetFileName(clickedFileName);
+		} else {
+			currentFile = clickedFile;
+		}
+		UpdateFileBrowser ();
 	}
 
 	private void CloseFileBrowserButtonClick(){
 		Destroy (GameObject.Find("FileBrowserUI"));
 		Destroy (GameObject.Find("FileBrowser"));
+		other.SendMessage("ToggleLevelEditor", true);
 	}
 
 	private void DirectoryUpButtonClick(string path){
@@ -145,13 +177,41 @@ public class FileBrowser : MonoBehaviour {
 			timestamp = Time.time + timeBetweenClicks;
 			if (Directory.GetParent (path) != null) {
 				currentPath = Directory.GetParent (path).FullName;
-				SetupFileBrowserTest ();
+				UpdateFileBrowser ();
 			}
 		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	private void SelectFileButtonClick(){
+		if (saving) {
+			other.SendMessage (callbackMethod, currentPath + "/" + saveFileName);
+		} else {
+			other.SendMessage (callbackMethod, currentFile);
+		}
+		Destroy (GameObject.Find("FileBrowserUI"));
+		Destroy (GameObject.Find("FileBrowser"));
+	}
+
+	public void SetSaveFileName(string saveFileName){
+		this.saveFileName = saveFileName;
+	}
+
+	//SaveFilePanel ("Save level", "", "LevelName", fileExtension);
+	public void SaveFilePanel (MonoBehaviour other, string callbackMethod){
+		saving = true;
+		saveFileText.SetActive (true);
+		loadFileText.SetActive (false);
+		selectFileButton.GetComponent<Image>().sprite = saveImage;
+		this.other = other;
+		this.callbackMethod = callbackMethod;
+	}
+	//OpenFilePanel ("Open level", "", fileExtension);
+	public void OpenFilePanel(MonoBehaviour other, string callbackMethod){
+		saving = false;
+		loadFileText.SetActive (true);
+		selectFileButton.GetComponent<Image>().sprite = loadImage;
+		saveFileText.SetActive (false);
+		this.other = other;
+		this.callbackMethod = callbackMethod;
 	}
 }
