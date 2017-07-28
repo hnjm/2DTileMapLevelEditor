@@ -122,8 +122,9 @@ public class LevelEditor : MonoBehaviour {
 	public Texture2D fillCursor;
 	private static Color32 DisabledColor = new Color32 (150, 150, 150, 255);
 
+	// FileBrowser Prefab to open Save- and LoadFileDialog
 	public GameObject fileBrowserPrefab;
-	private bool fileBrowserMode = false;
+	// Temporary variable to save level before getting the path using the FileBrowser
 	private string levelToSave;
 
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
@@ -200,7 +201,7 @@ public class LevelEditor : MonoBehaviour {
 		GameObject canvas = GameObject.Find("Canvas");
 		if (canvas == null) {
 			errorCounter++;
-			Debug.LogError ("Make sure there is a canvas GameObject present in the Hierary (Create UI/Canvas)");
+			Debug.LogError ("Make sure there is a canvas GameObject present in the Hierarcy (Create UI/Canvas)");
 		}
 		GameObject levelEditorUI = Instantiate (levelEditorUIPrefab, canvas.transform);
 		levelEditorUI.name = ("LevelEditorUI");
@@ -222,6 +223,7 @@ public class LevelEditor : MonoBehaviour {
 		SetupPrefabsButtons ();
 	}
 
+	// Finds and returns a game object by name or prints and error and increments error counter
 	private GameObject FindGameObjectOrError(string name){
 		GameObject gameObject = GameObject.Find (name);
 		if (gameObject == null) {
@@ -861,7 +863,7 @@ public class LevelEditor : MonoBehaviour {
 		openButton.SetActive(false);
 		scriptEnabled = true;
 	}
-
+		
 	// Enables/disables the level editor, (script, overlay and panel)
 	public void ToggleLevelEditor(bool enabled){
 		scriptEnabled = enabled;
@@ -869,19 +871,29 @@ public class LevelEditor : MonoBehaviour {
 		levelEditorPanel.SetActive (enabled);
 	}
 
-	public void OpenFileBrowserMode(bool save){
+	// Called when destroying (success or close of) the file browser
+	// Enables Level Editor after being disabled in OpenFileBrowser
+	private void CloseFileBrowser (){
+		ToggleLevelEditor (true);
+	}
+
+	// Open a file browser to save and load files
+	public void OpenFileBrowser(FileBrowserMode fileBrowserMode){
+		// Disable the LevelEditor while the fileBrowser is open
 		ToggleLevelEditor (false);
+		// Create the file browser and name it
 		GameObject fileBrowserObject = Instantiate (fileBrowserPrefab, this.transform);
 		fileBrowserObject.name = "FileBrowser";
+		// Set the mode to save or load
 		FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser> ();
-		if (save) {
-			fileBrowserScript.SaveFilePanel (this, "SaveUsingPath");
+		if (fileBrowserMode == FileBrowserMode.Save) {
+			fileBrowserScript.SaveFilePanel (this, "SaveLevelUsingPath", "CloseFileBrowser");
 		} else {
-			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingStringPath");
+			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingPath", "CloseFileBrowser");
 		}
 	}
 
-	// Save the level to a file
+	// Save the level to a variable and file using FileBrowser and SaveLevelUsingPath
 	public void SaveLevel()
 	{
 		List<string> newLevel = new List<string> ();
@@ -910,44 +922,28 @@ public class LevelEditor : MonoBehaviour {
 		foreach (string level in newLevel) {
 			levelComplete += level;
 		}
+		// Temporarily save the level to save it using SaveLevelUsingPath
 		levelToSave = levelComplete;
-		//Save to a file
-		OpenFileBrowserMode (true);
-//		string path = EditorUtility.SaveFilePanel ("Save level", "", "LevelName", fileExtension);
-//		if (path.Length != 0) {
-//			FileStream file = File.Create (path);
-//			bFormatter.Serialize (file, levelComplete);
-//			file.Close ();
-//		} else {
-//			bool saveDialogAgain = EditorUtility.DisplayDialog("Failed to save level", "Open save dialog again?", "Yes", "No");
-//			if (saveDialogAgain) {
-//				SaveLevel ();
-//			}
-//		}
+		// Open file browser to get the path and file name
+		OpenFileBrowser (FileBrowserMode.Save);
 	}
 
-	private void SaveUsingPath (string path)
+	// Save to a file using a path
+	private void SaveLevelUsingPath (string path)
 	{
-		ToggleLevelEditor (true);
+		// Save the level to file
 		BinaryFormatter bFormatter = new BinaryFormatter ();
-		if (path.Length != 0) {
-			FileStream file = File.Create (path);
-			bFormatter.Serialize (file, levelToSave);
-			file.Close ();
-			levelToSave = null;
-		} else {
-			bool saveDialogAgain = EditorUtility.DisplayDialog ("Failed to save level", "Open save dialog again?", "Yes", "No");
-			if (saveDialogAgain) {
-				SaveLevel ();
-			}
-		}
+		FileStream file = File.Create (path);
+		bFormatter.Serialize (file, levelToSave);
+		file.Close ();
+		// Reset the temporary variable
+		levelToSave = null;
 	}
 
 	// Method that resets the GameObjects and layers
 	void ResetTransformsAndLayers()
 	{
-		// Destroy everything inside our currently level that's created
-		// dynamically
+		// Destroy everything inside our currently level that's created dynamically
 		foreach (Transform child in tileLevelParent.transform) {
 			Destroy (child.gameObject);
 		}
@@ -957,8 +953,7 @@ public class LevelEditor : MonoBehaviour {
 	// Method that resets the level and GameObject before a load
 	void ResetBeforeLoad()
 	{
-		// Destroy everything inside our currently level that's created
-		// dynamically
+		// Destroy everything inside our currently level that's created dynamically
 		foreach (Transform child in tileLevelParent.transform) {
 			Destroy (child.gameObject);
 		}
@@ -969,49 +964,16 @@ public class LevelEditor : MonoBehaviour {
 		redoStack = new FiniteStack<int[,,]> ();
 	}
 
+	// Load the level from a file using FileBrowser and LoadLevelUsingPath
 	public void LoadLevel()
 	{
-		OpenFileBrowserMode (false);
-
-//		string path = EditorUtility.OpenFilePanel ("Open level", "", fileExtension);
-//		if (path.Length != 0) {
-//			// Reset the level
-//			ResetBeforeLoad ();
-//			FileStream file = File.OpenRead (path);
-//			// Convert the file from a byte array into a string
-//			string levelData = bFormatter.Deserialize (file) as string;
-//			// We're done working with the file so we can close it
-//			file.Close ();
-//			LoadLevelFromStringLayers (levelData);
-//		} else {
-//			bool loadDialogAgain = EditorUtility.DisplayDialog("Failed to load level", "Open load dialog again?", "Yes", "No");
-//			if (loadDialogAgain) {
-//				LoadLevel ();
-//			}
-//		}
+		// Open file browser to get the path and file name
+		OpenFileBrowser (FileBrowserMode.Load);
 	}
 
-//	public void LoadUsingPath(string path){
-//		BinaryFormatter bFormatter = new BinaryFormatter ();
-//		if (path.Length != 0) {
-//			// Reset the level
-//			ResetBeforeLoad ();
-//			FileStream file = File.OpenRead (path);
-//			// Convert the file from a byte array into a string
-//			string levelData = bFormatter.Deserialize (file) as string;
-//			// We're done working with the file so we can close it
-//			file.Close ();
-//			LoadLevelFromStringLayers (levelData);
-//		} else {
-//			bool loadDialogAgain = EditorUtility.DisplayDialog ("Failed to load level", "Open load dialog again?", "Yes", "No");
-//			if (loadDialogAgain) {
-//				LoadLevel ();
-//			}
-//		}
-//	}
-
-	public void LoadLevelUsingStringPath(string path){
-		ToggleLevelEditor (true);
+	// Load from a file using a path
+	public void LoadLevelUsingPath(string path)
+	{
 		BinaryFormatter bFormatter = new BinaryFormatter ();
 		// Reset the level
 		ResetBeforeLoad ();

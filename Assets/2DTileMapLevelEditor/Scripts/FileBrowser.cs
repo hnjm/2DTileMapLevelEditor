@@ -4,68 +4,74 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
+// Enum used to define save and load mode
+public enum FileBrowserMode{ Save,Load }
+
 public class FileBrowser : MonoBehaviour {
 
+	// Counter for errors
 	private int errorCounter = 0;
 
+	// The current path of the file browser
+	// Starts using the current directory of the Unity Project
 	private string currentPath = Directory.GetCurrentDirectory ();
+	// The currently selected file
 	private string currentFile;
-	private string selectedFile;
-
-	private GameObject directoryUpButton;
-	public float timeBetweenClicks = 0.3f;  // Allow 3 clicks per second
-	private float timestamp;
-
-	private GameObject closeFileBrowserButton;
-	private GameObject selectFileButton;
-
-
-	private GameObject pathText;
-	private GameObject saveFileText;
-	private GameObject loadFileText;
-
-	// GameObject as the parent for all the GameObject in the tiles selection
-	private GameObject directoriesParent;
-
-	private GameObject filesParent;
-
-	// Button Prefab used to create tile selection buttons for each GameObjects.
-	public GameObject fileBrowserButtonPrefab;
-
-	// UI
-	public GameObject fileBrowserUIPrefab;
-
-	public string fileFilter = null;
-
+	// The name for file to be saved
 	private string saveFileName;
 
-	private MonoBehaviour other = null;
-	private string callbackMethod;
+	// The parent object of the File Browser UI as prefab
+	public GameObject fileBrowserUIPrefab;
 
-	private bool saving;
+	// Button used to close the file browser
+	private GameObject closeFileBrowserButton;
+	// Button used to select a file to save/load
+	private GameObject selectFileButton;
+	// Button used to go one directory up
+	private GameObject directoryUpButton;
+	// Allow 3 clicks per second for the directory up button
+	public float timeBetweenClicks = 0.3f;  
+	private float timestamp;
 
+	// Game object that represents the current path
+	private GameObject pathText;
+	// Game object (InputField) that represents the name of the file to save
+	private GameObject saveFileText;
+	// Game object (Text) that represents the name of the file to load
+	private GameObject loadFileText;
+
+	// Game object used as the parent for all the Directories of the current path
+	private GameObject directoriesParent;
+	// Game object used as the parent for all the Files of the current path
+	private GameObject filesParent;
+
+	// Button Prefab used to create a button for each directory in the current path.
+	public GameObject fileBrowserDirectoryButtonPrefab;
+	// Button Prefab used to create a button for each file in the current path.
+	public GameObject fileBrowserFileButtonPrefab;
+
+	// Sprite used to represent the save button
 	public Sprite saveImage;
+	// Sprite used to represent the load button
 	public Sprite loadImage;
 
+	// Variable to set save or load mode
+	private FileBrowserMode mode;
 
-	// Use this for initialization
+	// MonoBehaviour script used to call this script
+	// Saved for the call back or cancellation
+	private MonoBehaviour callerScript = null;
+	// Method to be called of the callerScript on success (save/load)
+	private string callbackSuccessMethod;
+	// Method to be called of the callerScript on fail (close)
+	private string callbackFailMethod;
+
+	// On Awake, set up the File Browser
 	void Awake () {
-
-		//------ UI ---------
-
-		// Instantiate the LevelEditorUI
-		GameObject canvas = GameObject.Find("Canvas");
-		if (canvas == null) {
-			errorCounter++;
-			Debug.LogError ("Make sure there is a canvas GameObject present in the Hierary (Create UI/Canvas)");
-		}
-
-		GameObject fileBrowserUITInstance = Instantiate (fileBrowserUIPrefab, canvas.transform);
-		fileBrowserUITInstance.name = "FileBrowserUI";
-
-		SetupFileBrowserTest ();
+		SetupFileBrowser ();
 	}
 
+	// Finds and returns a game object by name or prints and error and increments error counter
 	private GameObject FindGameObjectOrError(string name){
 		GameObject gameObject = GameObject.Find (name);
 		if (gameObject == null) {
@@ -77,86 +83,121 @@ public class FileBrowser : MonoBehaviour {
 		}
 	}
 
-	private void SetupFileBrowserTest(){
+	private void SetupFileBrowser(){
+		//------ UI ---------
+
+		// Find the canvas so UI elements can be added to it
+		GameObject canvas = GameObject.Find("Canvas");
+		if (canvas == null) {
+			errorCounter++;
+			Debug.LogError ("Make sure there is a canvas GameObject present in the Hierarcy (Create UI/Canvas)");
+		}
+
+		// Instantiate the file browser UI using the transform of the canvas and name it
+		GameObject fileBrowserUITInstance = Instantiate (fileBrowserUIPrefab, canvas.transform);
+		fileBrowserUITInstance.name = "FileBrowserUI";
+
+		// Hook up DirectoryUp method to DirectoryUpButton
 		directoryUpButton = FindGameObjectOrError ("DirectoryUpButton");
 		directoryUpButton.GetComponent<Button> ().onClick.AddListener (() => {
-			DirectoryUpButtonClick (currentPath);
+			DirectoryUp (currentPath);
 		});
 
+		// Hook up CloseFileBrowser method to DirectoryUpButton
 		closeFileBrowserButton = FindGameObjectOrError ("CloseFileBrowserButton");
 		closeFileBrowserButton.GetComponent<Button> ().onClick.AddListener (() => {
-			CloseFileBrowserButtonClick ();
+			CloseFileBrowser ();
 		});
 
+		// Hook up SelectFile method to SelectFileButton
 		selectFileButton = FindGameObjectOrError ("SelectFileButton");
 		selectFileButton.GetComponent<Button> ().onClick.AddListener (() => {
-			SelectFileButtonClick ();
+			SelectFile ();
 		});
 
+		// Find pathText game object to update path on clicks
 		pathText = FindGameObjectOrError ("PathText");
+		// Find pathText game object to update load file text on clicks
 		loadFileText = FindGameObjectOrError ("LoadFileText");
-		saveFileText = FindGameObjectOrError ("SaveFileText");
 
+		// Find saveFileText game object to update save file text 
+		// and hook up onEndEdit listener to update name using SetSaveFileName method
+		saveFileText = FindGameObjectOrError ("SaveFileText");
 		saveFileText.GetComponent<InputField> ().onEndEdit.AddListener (SetSaveFileName);
 
+		// Find directories parent to group directory buttons
+		directoriesParent = FindGameObjectOrError ("Directories");
+		// Find files parent to group file buttons
+		filesParent = FindGameObjectOrError ("Files");
 
-		directoriesParent = GameObject.Find ("Directories");
-		filesParent = GameObject.Find ("Files");
+		// Call update once to set all files for initial directory
 		UpdateFileBrowser ();
 	}
 
+	// Updates the saveFileName, used as listener method for the InputField
+	public void SetSaveFileName(string saveFileName){
+		this.saveFileName = saveFileName;
+	}
+
+	// Updates the file browser by updating the path, file name, directories and files
 	private void UpdateFileBrowser(){
+		// Update the path text
 		if (pathText != null && pathText.GetComponent<Text> () != null) {
 			pathText.GetComponent<Text> ().text = currentPath;
 		}
+		// Update the file to load text
 		if (loadFileText != null && loadFileText.GetComponent<Text> () != null) {
 			loadFileText.GetComponent<Text> ().text = currentFile;
 		}
 
+		// Remove all current game objects under the directories parent
 		if (directoriesParent.transform.childCount > 0) {
 			foreach (Transform child in directoriesParent.transform) {
 				GameObject.Destroy(child.gameObject);
 			}
 		}
+		// For each directory in the current directory, create a DirectoryButton and hook up the DirectoryClick method
 		foreach (string dir in Directory.GetDirectories (currentPath)) {
-			GameObject button = Instantiate (fileBrowserButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+			GameObject button = Instantiate (fileBrowserDirectoryButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 			button.GetComponent<Text> ().text = new DirectoryInfo(dir).Name;
 			button.transform.SetParent (directoriesParent.transform, false);
-			button.transform.localScale = new Vector3 (1f, 1f, 1f);
+			button.transform.localScale = Vector3.one;
 			button.GetComponent<Button> ().onClick.AddListener (() => {
-				FileBrowserDirectoryButtonClick (dir);
+				DirectoryClick (dir);
 			});
 		}
 
+		// Remove all current game objects under the files parent
 		if (filesParent.transform.childCount > 0) {
 			foreach (Transform child in filesParent.transform) {
 				GameObject.Destroy(child.gameObject);
 			}
 		}
-		string[] files = (fileFilter == null ? Directory.GetFiles (currentPath) : Directory.GetFiles (currentPath, fileFilter));
+		// For each file in the current directory, create a FileButton and hook up the FileClick method
 		foreach (string file in Directory.GetFiles (currentPath)) {
-			GameObject button = Instantiate (fileBrowserButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+			GameObject button = Instantiate (fileBrowserFileButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 			button.GetComponent<Text> ().text = Path.GetFileName(file);
 			button.transform.SetParent (filesParent.transform, false);
-			button.transform.localScale = new Vector3 (1f, 1f, 1f);
+			button.transform.localScale = Vector3.one;
 			button.GetComponent<Button> ().onClick.AddListener (() => {
-				FileBrowserFileButtonClick (file);
+				FileClick (file);
 			});
 		}
 	}
 
-	// Method to switch selectedTile on tile selection
-	private void FileBrowserDirectoryButtonClick (string path)
+	// When a directory is clicked, update the path and the file browser
+	private void DirectoryClick (string path)
 	{
 		currentPath = path;
 		UpdateFileBrowser ();
 	}
 
-
-	// Method to switch selectedTile on tile selection
-	private void FileBrowserFileButtonClick (string clickedFile)
+	// When a file is click, update the save file text or current file and update the file browser
+	private void FileClick (string clickedFile)
 	{
-		if (saving) {
+		// When in save mode, update the save name to the clicked file name
+		// Else update the current file text
+		if (mode == FileBrowserMode.Save) {
 			string clickedFileName = Path.GetFileName (clickedFile);
 			saveFileName = clickedFileName;
 			saveFileText.GetComponent<InputField> ().text = Path.GetFileName(clickedFileName);
@@ -166,13 +207,14 @@ public class FileBrowser : MonoBehaviour {
 		UpdateFileBrowser ();
 	}
 
-	private void CloseFileBrowserButtonClick(){
-		Destroy (GameObject.Find("FileBrowserUI"));
-		Destroy (GameObject.Find("FileBrowser"));
-		other.SendMessage("ToggleLevelEditor", true);
+	// Closes the file browser by destroying the game objects and enables the level editor again
+	private void CloseFileBrowser(){
+		Destroy ();
 	}
 
-	private void DirectoryUpButtonClick(string path){
+	// Moves one directory up and update file browser
+	// Limited to 3 click per second to not skip directories
+	private void DirectoryUp(string path){
 		if (Time.time >= timestamp) {
 			timestamp = Time.time + timeBetweenClicks;
 			if (Directory.GetParent (path) != null) {
@@ -182,36 +224,46 @@ public class FileBrowser : MonoBehaviour {
 		}
 	}
 
-	private void SelectFileButtonClick(){
-		if (saving) {
-			other.SendMessage (callbackMethod, currentPath + "/" + saveFileName);
+	// When a file is selected (save/load button clicked), 
+	// send a message to the caller script and destroy the file browser
+	private void SelectFile(){
+		// When saving, send the path and new file name, else the selected file
+		if (mode == FileBrowserMode.Save) {
+			callerScript.SendMessage (callbackSuccessMethod, currentPath + "/" + saveFileName);
 		} else {
-			other.SendMessage (callbackMethod, currentFile);
+			callerScript.SendMessage (callbackSuccessMethod, currentFile);
 		}
-		Destroy (GameObject.Find("FileBrowserUI"));
-		Destroy (GameObject.Find("FileBrowser"));
+		Destroy ();
 	}
 
-	public void SetSaveFileName(string saveFileName){
-		this.saveFileName = saveFileName;
-	}
-
-	//SaveFilePanel ("Save level", "", "LevelName", fileExtension);
-	public void SaveFilePanel (MonoBehaviour other, string callbackMethod){
-		saving = true;
+	// Opens a file browser in save mode
+	// Requires a caller script, a method for the success callback result and fail callback result
+	public void SaveFilePanel (MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod){
+		mode = FileBrowserMode.Save;
 		saveFileText.SetActive (true);
 		loadFileText.SetActive (false);
 		selectFileButton.GetComponent<Image>().sprite = saveImage;
-		this.other = other;
-		this.callbackMethod = callbackMethod;
+		this.callerScript = callerScript;
+		this.callbackSuccessMethod = callbackSuccessMethod;
+		this.callbackFailMethod = callbackFailMethod;
 	}
-	//OpenFilePanel ("Open level", "", fileExtension);
-	public void OpenFilePanel(MonoBehaviour other, string callbackMethod){
-		saving = false;
+
+	// Opens a file browser in load mode
+	// Requires a caller script, a method for the success callback result and fail callback result
+	public void OpenFilePanel(MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod){
+		mode = FileBrowserMode.Load;
 		loadFileText.SetActive (true);
 		selectFileButton.GetComponent<Image>().sprite = loadImage;
 		saveFileText.SetActive (false);
-		this.other = other;
-		this.callbackMethod = callbackMethod;
+		this.callerScript = callerScript;
+		this.callbackSuccessMethod = callbackSuccessMethod;
+		this.callbackFailMethod = callbackFailMethod;
+	}
+
+	// Destroy this game method and calls callbackFailMethod
+	private void Destroy(){
+		Destroy (GameObject.Find("FileBrowserUI"));
+		Destroy (GameObject.Find("FileBrowser"));
+		callerScript.SendMessage(callbackFailMethod);
 	}
 }
