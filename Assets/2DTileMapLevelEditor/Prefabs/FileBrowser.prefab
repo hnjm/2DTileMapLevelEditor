@@ -52,7 +52,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeBetweenClicks: 0.5
-  fileBrowserButtonPrefab: {fileID: 1781446219088990, guid: c50a28e362f5046f1b365259e51af4c5,
+  fileBrowserDirectoryButtonPrefab: {fileID: 1781446219088990, guid: c50a28e362f5046f1b365259e51af4c5,
+    type: 2}
+  fileBrowserFileButtonPrefab: {fileID: 1781446219088990, guid: c8143dc148b024025a875a3c83a9d60f,
     type: 2}
   fileBrowserUIPrefab: {fileID: 1640941191724696, guid: e246cc6e9fd91465a9045cee33e07e0a,
     type: 2}
