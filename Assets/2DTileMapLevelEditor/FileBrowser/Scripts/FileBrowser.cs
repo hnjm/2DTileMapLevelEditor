@@ -101,7 +101,7 @@ public class FileBrowser : MonoBehaviour {
 			DirectoryUp (currentPath);
 		});
 
-		// Hook up CloseFileBrowser method to DirectoryUpButton
+		// Hook up CloseFileBrowser method to CloseFileBrowserButton
 		closeFileBrowserButton = FindGameObjectOrError ("CloseFileBrowserButton");
 		closeFileBrowserButton.GetComponent<Button> ().onClick.AddListener (() => {
 			CloseFileBrowser ();
@@ -182,7 +182,7 @@ public class FileBrowser : MonoBehaviour {
 			GameObject button = Instantiate (fileBrowserFileButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 			// When in Load mode, disable the buttons with different extension than the given file extension
 			if (mode == FileBrowserMode.Load) {
-				disableWrongExtesionFiles (button, file);
+				disableWrongExtensionFiles (button, file);
 			}
 			button.GetComponent<Text> ().text = Path.GetFileName (file);
 			button.transform.SetParent (filesParent.transform, false);
@@ -193,8 +193,8 @@ public class FileBrowser : MonoBehaviour {
 		}
 	}
 
-	// Disables file buttons with files that have a different file extension (than given to the OpenFileDialog)
-	private void disableWrongExtesionFiles(GameObject button, string file){
+	// Disables file buttons with files that have a different file extension (than given to the OpenFilePanel)
+	private void disableWrongExtensionFiles(GameObject button, string file){
 		if (!file.EndsWith ("." + fileExtension)) {
 			button.GetComponent<Button> ().interactable = false;
 		}
@@ -235,7 +235,7 @@ public class FileBrowser : MonoBehaviour {
 	}
 
 	// When a file is selected (save/load button clicked), 
-	// send a message to the caller script and destroy the file browser
+	// send a message to the caller script
 	private void SelectFile(){
 		// When saving, send the path and new file name, else the selected file
 		if (mode == FileBrowserMode.Save) {
@@ -245,25 +245,31 @@ public class FileBrowser : MonoBehaviour {
 			if (inputFieldValue == null || inputFieldValue == "") {
 				Debug.LogError ("Invalid file name given");
 			} else {
-				callerScript.SendMessage (callbackMethod, currentPath + "/" + inputFieldValue);
+				SendCallbackMessage(currentPath + "/" + inputFieldValue);
 			}
 		} else {
-			callerScript.SendMessage (callbackMethod, currentFile);
+			SendCallbackMessage(currentFile);
 		}
-		Destroy ();
 	}
 
 
-	// Closes the file browser by destroying the game objects and enables the level editor again
+	// Closes the file browser and send back an empty string
 	private void CloseFileBrowser(){
-		callerScript.SendMessage (callbackMethod, "");
+		SendCallbackMessage("");
+	}
+
+	// Sends back a message to the callerScript and callbackMethod
+	// Then destroys the FileBrowser
+	private void SendCallbackMessage(string message){
+		callerScript.SendMessage (callbackMethod, message);
+		Destroy ();
 	}
 
 	// Opens a file browser in save mode
 	// Requires a caller script and a method for the callback result
 	// Also requires a default file and a file extension
 	public void SaveFilePanel (MonoBehaviour callerScript, string callbackMethod, string defaultName, string fileExtension){
-		// Make sure the file extension is not null, else set it to "" (no filter for load)
+		// Make sure the file extension is not null, else set it to "" (no extension for the file to save)
 		if (fileExtension == null) {
 			fileExtension = "";
 		}
@@ -273,26 +279,26 @@ public class FileBrowser : MonoBehaviour {
 		selectFileButton.GetComponent<Image>().sprite = saveImage;
 		// Update the input field with the default name and file extension
 		SetFileNameInputField (defaultName, fileExtension);
-		FileDialog (callerScript, callbackMethod, fileExtension);
+		FilePanel (callerScript, callbackMethod, fileExtension);
 	}
 
 	// Opens a file browser in load mode
 	// Requires a caller script and a method for the callback result 
 	// Also a file extension used to filter the loadable files
 	public void OpenFilePanel(MonoBehaviour callerScript, string callbackMethod, string fileExtension){
-		mode = FileBrowserMode.Load;
-		loadFileText.SetActive (true);
-		selectFileButton.GetComponent<Image>().sprite = loadImage;
-		saveFileText.SetActive (false);
-		FileDialog (callerScript, callbackMethod, fileExtension);
-	}
-
-	// Generic file browser dialog to remove duplicate code
-	private void FileDialog(MonoBehaviour callerScript, string callbackMethod, string fileExtension){
 		// Make sure the file extension is not invalid, else set it to * (no filter for load)
 		if (fileExtension == null || fileExtension == "") {
 			fileExtension = "*";
 		}
+		mode = FileBrowserMode.Load;
+		loadFileText.SetActive (true);
+		selectFileButton.GetComponent<Image>().sprite = loadImage;
+		saveFileText.SetActive (false);
+		FilePanel (callerScript, callbackMethod, fileExtension);
+	}
+
+	// Generic file browser panel to remove duplicate code
+	private void FilePanel(MonoBehaviour callerScript, string callbackMethod, string fileExtension){
 		// Set values
 		this.fileExtension = fileExtension;
 		this.callerScript = callerScript;
@@ -301,7 +307,7 @@ public class FileBrowser : MonoBehaviour {
 		UpdateFileBrowser ();
 	}
 
-	// Destroy this game method and calls callbackFailMethod
+	// Destroy this file browser (the UI and the GameObject)
 	private void Destroy(){
 		Destroy (GameObject.Find("FileBrowserUI"));
 		Destroy (GameObject.Find("FileBrowser"));

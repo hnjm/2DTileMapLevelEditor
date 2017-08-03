@@ -121,7 +121,7 @@ public class LevelEditor : MonoBehaviour {
 	public Texture2D fillCursor;
 	private static Color32 DisabledColor = new Color32 (150, 150, 150, 255);
 
-	// FileBrowser Prefab to open Save- and LoadFileDialog
+	// FileBrowser Prefab to open Save- and LoadFilePanel
 	public GameObject fileBrowserPrefab;
 	// Temporary variable to save level before getting the path using the FileBrowser
 	private string levelToSave;
@@ -862,7 +862,7 @@ public class LevelEditor : MonoBehaviour {
 		openButton.SetActive(false);
 		scriptEnabled = true;
 	}
-		
+
 	// Enables/disables the level editor, (script, overlay and panel)
 	public void ToggleLevelEditor(bool enabled){
 		scriptEnabled = enabled;
