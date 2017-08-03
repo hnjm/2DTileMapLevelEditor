@@ -260,7 +260,8 @@ public class FileBrowser : MonoBehaviour {
 	}
 
 	// Opens a file browser in save mode
-	// Requires a caller script, a method for the success callback result and a fail callback result. Also requires a default file and and a file extension
+	// Requires a caller script and a method for the callback result
+	// Also requires a default file and a file extension
 	public void SaveFilePanel (MonoBehaviour callerScript, string callbackMethod, string defaultName, string fileExtension){
 		// Make sure the file extension is not null, else set it to "" (no filter for load)
 		if (fileExtension == null) {

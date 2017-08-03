@@ -1,6 +1,5 @@
 ﻿// Include basic namespaces
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 
 // Include for Lists and Dictionaries
