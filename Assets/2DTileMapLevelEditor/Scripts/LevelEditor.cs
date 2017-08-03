@@ -887,9 +887,9 @@ public class LevelEditor : MonoBehaviour {
 		// Set the mode to save or load
 		FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser> ();
 		if (fileBrowserMode == FileBrowserMode.Save) {
-			fileBrowserScript.SaveFilePanel (this, "SaveLevelUsingPath", "CloseFileBrowser");
+			fileBrowserScript.SaveFilePanel (this, "SaveLevelUsingPath", "CloseFileBrowser", "Level", fileExtension);
 		} else {
-			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingPath", "CloseFileBrowser");
+			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingPath", "CloseFileBrowser", fileExtension);
 		}
 	}
 

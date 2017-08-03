@@ -45,9 +45,9 @@ public class FileBrowser : MonoBehaviour {
 	// Game object used as the parent for all the Files of the current path
 	private GameObject filesParent;
 
-	// Button Prefab used to create a button for each directory in the current path.
+	// Button Prefab used to create a button for each directory in the current path
 	public GameObject fileBrowserDirectoryButtonPrefab;
-	// Button Prefab used to create a button for each file in the current path.
+	// Button Prefab used to create a button for each file in the current path
 	public GameObject fileBrowserFileButtonPrefab;
 
 	// Sprite used to represent the save button
@@ -65,6 +65,8 @@ public class FileBrowser : MonoBehaviour {
 	private string callbackSuccessMethod;
 	// Method to be called of the callerScript on fail (close)
 	private string callbackFailMethod;
+	// String file extension to filter results and save new files
+	private string fileExtension;
 
 	// On Awake, set up the File Browser
 	void Awake () {
@@ -84,8 +86,6 @@ public class FileBrowser : MonoBehaviour {
 	}
 
 	private void SetupFileBrowser(){
-		//------ UI ---------
-
 		// Find the canvas so UI elements can be added to it
 		GameObject canvas = GameObject.Find("Canvas");
 		if (canvas == null) {
@@ -117,26 +117,32 @@ public class FileBrowser : MonoBehaviour {
 
 		// Find pathText game object to update path on clicks
 		pathText = FindGameObjectOrError ("PathText");
-		// Find pathText game object to update load file text on clicks
+		// Find loadText game object to update load file text on clicks
 		loadFileText = FindGameObjectOrError ("LoadFileText");
 
 		// Find saveFileText game object to update save file text 
-		// and hook up onEndEdit listener to update name using SetSaveFileName method
+		// and hook up onValueChanged listener to check the name using CheckValidFileName method
 		saveFileText = FindGameObjectOrError ("SaveFileText");
-		saveFileText.GetComponent<InputField> ().onEndEdit.AddListener (SetSaveFileName);
+		saveFileText.GetComponent<InputField> ().onValueChanged.AddListener (CheckValidFileName);
 
 		// Find directories parent to group directory buttons
 		directoriesParent = FindGameObjectOrError ("Directories");
 		// Find files parent to group file buttons
 		filesParent = FindGameObjectOrError ("Files");
-
-		// Call update once to set all files for initial directory
-		UpdateFileBrowser ();
 	}
 
-	// Updates the saveFileName, used as listener method for the InputField
-	public void SetSaveFileName(string saveFileName){
-		this.saveFileName = saveFileName;
+	// Checks the current value of the InputField. If it is an empty string, disable the save button
+	public void CheckValidFileName(string inputFieldValue){
+		if (inputFieldValue == "") {
+			selectFileButton.SetActive (false);
+		} else {
+			selectFileButton.SetActive (true);
+		}
+	}
+
+	// Updates the input field value with a file name and extension
+	public void SetFileNameInputField(string fileName, string fileExtension){
+		saveFileText.GetComponent<InputField> ().text = fileName + "." + fileExtension;
 	}
 
 	// Updates the file browser by updating the path, file name, directories and files
@@ -176,12 +182,23 @@ public class FileBrowser : MonoBehaviour {
 		// For each file in the current directory, create a FileButton and hook up the FileClick method
 		foreach (string file in Directory.GetFiles (currentPath)) {
 			GameObject button = Instantiate (fileBrowserFileButtonPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-			button.GetComponent<Text> ().text = Path.GetFileName(file);
+			// When in Load mode, disable the buttons with different extension than the given file extension
+			if (mode == FileBrowserMode.Load) {
+				disableWrongExtesionFiles (button, file);
+			}
+			button.GetComponent<Text> ().text = Path.GetFileName (file);
 			button.transform.SetParent (filesParent.transform, false);
 			button.transform.localScale = Vector3.one;
 			button.GetComponent<Button> ().onClick.AddListener (() => {
 				FileClick (file);
 			});
+		}
+	}
+
+	// Disables file buttons with files that have a different file extension (than given to the OpenFileDialog)
+	private void disableWrongExtesionFiles(GameObject button, string file){
+		if (!file.EndsWith ("." + fileExtension)) {
+			button.GetComponent<Button> ().interactable = false;
 		}
 	}
 
@@ -192,24 +209,19 @@ public class FileBrowser : MonoBehaviour {
 		UpdateFileBrowser ();
 	}
 
-	// When a file is click, update the save file text or current file and update the file browser
+	// When a file is click, validate and update the save file text or current file and update the file browser
 	private void FileClick (string clickedFile)
 	{
 		// When in save mode, update the save name to the clicked file name
 		// Else update the current file text
 		if (mode == FileBrowserMode.Save) {
-			string clickedFileName = Path.GetFileName (clickedFile);
-			saveFileName = clickedFileName;
-			saveFileText.GetComponent<InputField> ().text = Path.GetFileName(clickedFileName);
+			string clickedFileName = Path.GetFileNameWithoutExtension(clickedFile);
+			CheckValidFileName(clickedFileName);
+			SetFileNameInputField (clickedFileName, fileExtension);
 		} else {
 			currentFile = clickedFile;
 		}
 		UpdateFileBrowser ();
-	}
-
-	// Closes the file browser by destroying the game objects and enables the level editor again
-	private void CloseFileBrowser(){
-		Destroy ();
 	}
 
 	// Moves one directory up and update file browser
@@ -229,7 +241,13 @@ public class FileBrowser : MonoBehaviour {
 	private void SelectFile(){
 		// When saving, send the path and new file name, else the selected file
 		if (mode == FileBrowserMode.Save) {
-			callerScript.SendMessage (callbackSuccessMethod, currentPath + "/" + saveFileName);
+			string inputFieldValue = saveFileText.GetComponent<InputField> ().text;
+			// Additional check for invalid input field value. Should never be true due to onValueChanged check with toggle on save button
+			if (inputFieldValue == null || inputFieldValue == "") {
+				Debug.LogError ("Invalid file name given");
+			} else {
+				callerScript.SendMessage (callbackSuccessMethod, currentPath + "/" + inputFieldValue);
+			}
 		} else {
 			callerScript.SendMessage (callbackSuccessMethod, currentFile);
 		}
@@ -237,27 +255,49 @@ public class FileBrowser : MonoBehaviour {
 	}
 
 	// Opens a file browser in save mode
-	// Requires a caller script, a method for the success callback result and fail callback result
-	public void SaveFilePanel (MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod){
+	// Requires a caller script, a method for the success callback result and a fail callback result. Also requires a default file and and a file extension
+	public void SaveFilePanel (MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod, string defaultName, string fileExtension){
+		// Make sure the file extension is not null, else set it to "" (no filter for load)
+		if (fileExtension == null) {
+			fileExtension = "";
+		}
 		mode = FileBrowserMode.Save;
 		saveFileText.SetActive (true);
 		loadFileText.SetActive (false);
 		selectFileButton.GetComponent<Image>().sprite = saveImage;
-		this.callerScript = callerScript;
-		this.callbackSuccessMethod = callbackSuccessMethod;
-		this.callbackFailMethod = callbackFailMethod;
+		// Update the input field with the default name and file extension
+		SetFileNameInputField (defaultName, fileExtension);
+		FileDialog (callerScript, callbackSuccessMethod, callbackFailMethod, fileExtension);
 	}
 
 	// Opens a file browser in load mode
-	// Requires a caller script, a method for the success callback result and fail callback result
-	public void OpenFilePanel(MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod){
+	// Requires a caller script, a method for the success callback result and fail callback result. Also filter the loadable files using a given file extension
+	public void OpenFilePanel(MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod, string fileExtension){
 		mode = FileBrowserMode.Load;
 		loadFileText.SetActive (true);
 		selectFileButton.GetComponent<Image>().sprite = loadImage;
 		saveFileText.SetActive (false);
+		FileDialog (callerScript, callbackSuccessMethod, callbackFailMethod, fileExtension);
+	}
+
+	// Generic file browser dialog to remove duplicate code
+	private void FileDialog(MonoBehaviour callerScript, string callbackSuccessMethod, string callbackFailMethod, string fileExtension){
+		// Make sure the file extension is not invalid, else set it to * (no filter for load)
+		if (fileExtension == null || fileExtension == "") {
+			fileExtension = "*";
+		}
+		// Set values
+		this.fileExtension = fileExtension;
 		this.callerScript = callerScript;
 		this.callbackSuccessMethod = callbackSuccessMethod;
 		this.callbackFailMethod = callbackFailMethod;
+		// Call update once to set all files for initial directory
+		UpdateFileBrowser ();
+	}
+
+	// Closes the file browser by destroying the game objects and enables the level editor again
+	private void CloseFileBrowser(){
+		Destroy ();
 	}
 
 	// Destroy this game method and calls callbackFailMethod
