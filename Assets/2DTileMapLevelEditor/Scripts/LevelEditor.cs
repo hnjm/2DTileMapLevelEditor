@@ -871,12 +871,6 @@ public class LevelEditor : MonoBehaviour {
 		levelEditorPanel.SetActive (enabled);
 	}
 
-	// Called when destroying (success or close of) the file browser
-	// Enables Level Editor after being disabled in OpenFileBrowser
-	private void CloseFileBrowser (){
-		ToggleLevelEditor (true);
-	}
-
 	// Open a file browser to save and load files
 	public void OpenFileBrowser(FileBrowserMode fileBrowserMode){
 		// Disable the LevelEditor while the fileBrowser is open
@@ -887,9 +881,9 @@ public class LevelEditor : MonoBehaviour {
 		// Set the mode to save or load
 		FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser> ();
 		if (fileBrowserMode == FileBrowserMode.Save) {
-			fileBrowserScript.SaveFilePanel (this, "SaveLevelUsingPath", "CloseFileBrowser", "Level", fileExtension);
+			fileBrowserScript.SaveFilePanel (this, "SaveLevelUsingPath", "Level", fileExtension);
 		} else {
-			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingPath", "CloseFileBrowser", fileExtension);
+			fileBrowserScript.OpenFilePanel (this, "LoadLevelUsingPath", fileExtension);
 		}
 	}
 
@@ -931,13 +925,19 @@ public class LevelEditor : MonoBehaviour {
 	// Save to a file using a path
 	private void SaveLevelUsingPath (string path)
 	{
-		// Save the level to file
-		BinaryFormatter bFormatter = new BinaryFormatter ();
-		FileStream file = File.Create (path);
-		bFormatter.Serialize (file, levelToSave);
-		file.Close ();
-		// Reset the temporary variable
-		levelToSave = null;
+		// Enable the LevelEditor when the fileBrowser is done
+		ToggleLevelEditor (true);
+		if (path.Length != 0) {
+			// Save the level to file
+			BinaryFormatter bFormatter = new BinaryFormatter ();
+			FileStream file = File.Create (path);
+			bFormatter.Serialize (file, levelToSave);
+			file.Close ();
+			// Reset the temporary variable
+			levelToSave = null;
+		} else {
+			Debug.Log ("Invalid path given");
+		}
 	}
 
 	// Method that resets the GameObjects and layers
@@ -974,15 +974,21 @@ public class LevelEditor : MonoBehaviour {
 	// Load from a file using a path
 	public void LoadLevelUsingPath(string path)
 	{
-		BinaryFormatter bFormatter = new BinaryFormatter ();
-		// Reset the level
-		ResetBeforeLoad ();
-		FileStream file = File.OpenRead (path);
-		// Convert the file from a byte array into a string
-		string levelData = bFormatter.Deserialize (file) as string;
-		// We're done working with the file so we can close it
-		file.Close ();
-		LoadLevelFromStringLayers (levelData);
+		// Enable the LevelEditor when the fileBrowser is done
+		ToggleLevelEditor (true);
+		if (path.Length != 0) {
+			BinaryFormatter bFormatter = new BinaryFormatter ();
+			// Reset the level
+			ResetBeforeLoad ();
+			FileStream file = File.OpenRead (path);
+			// Convert the file from a byte array into a string
+			string levelData = bFormatter.Deserialize (file) as string;
+			// We're done working with the file so we can close it
+			file.Close ();
+			LoadLevelFromStringLayers (levelData);
+		} else {
+			Debug.Log ("Invalid path given");
+		}
 	}
 
 	// Method that loads the layers
