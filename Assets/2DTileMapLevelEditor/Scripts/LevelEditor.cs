@@ -139,7 +139,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method to instantiate the dependencies and variables
-	public void Start()
+ 	void Start()
 	{
 		// Check the start values to prevent errors
 		CheckStartValues ();
@@ -282,7 +282,7 @@ public class LevelEditor : MonoBehaviour {
 		zoomDefaultButton.GetComponent<Button> ().onClick.AddListener (ZoomDefault);
 	}
 
-	public void SetupLayerButtons(){
+	private void SetupLayerButtons(){
 		// Hook up LayerUp method to +LayerButton
 		GameObject plusLayerButton = FindGameObjectOrError ("+LayerButton");
 		plusLayerButton.GetComponent<Button> ().onClick.AddListener (LayerUp);
@@ -418,7 +418,7 @@ public class LevelEditor : MonoBehaviour {
 
 	// Method to create an empty level by looping through the Height, Width and Layers 
 	// and setting the value to EMPTY (-1)
-	int[, ,] CreateEmptyLevel()
+	private int[, ,] CreateEmptyLevel()
 	{
 		int[,,] emptyLevel = new int[WIDTH, HEIGHT, LAYERS];
 		for (int x = 0; x < WIDTH; x++) {
@@ -442,7 +442,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that creates a GameObject on click
-	public void CreateBlock(int value, int xPos, int yPos, int zPos)
+	private void CreateBlock(int value, int xPos, int yPos, int zPos)
 	{
 		// The transform to create
 		Transform toCreate = null;
@@ -470,7 +470,7 @@ public class LevelEditor : MonoBehaviour {
 
 	// Rebuild the level (e.g. after using undo/redo)
 	// Reset the Transforms and Layer, then loop trough level array and create blocks
-	void RebuildLevel(){
+	private void RebuildLevel(){
 		ResetTransformsAndLayers ();
 		for (int x = 0; x < WIDTH; x++) {
 			for (int y = 0; y < HEIGHT; y++) {
@@ -482,7 +482,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Load last saved level from undo stack and rebuild level
-	void Undo(){
+	private void Undo(){
 		// See if there is anything on the undo stack
 		if (undoStack.Count > 0) {
 			// If so, push it to the redo stack
@@ -498,7 +498,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Load last saved level from redo tack and rebuild level
-	void Redo() {
+	private void Redo() {
 		// See if there is anything on the redo stack
 		if (redoStack.Count > 0){
 			// If so, push it to the redo stack
@@ -514,7 +514,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Increment the orthographic size or field of view of the camera, thereby zooming in
-	void ZoomIn(){
+	private void ZoomIn(){
 		if (mainCameraComponent.orthographic) {
 			mainCameraComponent.orthographicSize = Mathf.Max (mainCameraComponent.orthographicSize - 1, 1);
 		} else {
@@ -523,7 +523,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Decrement the orthographic size or field of view of the camera, thereby zooming out
-	void ZoomOut(){
+	private void ZoomOut(){
 		if (mainCameraComponent.orthographic) {
 			mainCameraComponent.orthographicSize += 1;
 		} else {
@@ -532,7 +532,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Resets the orthographic size or field of view of the camera, thereby resetting the zoom level
-	void ZoomDefault(){
+	private void ZoomDefault(){
 		if (mainCameraComponent.orthographic) {
 			mainCameraComponent.orthographicSize = mainCameraInitialSize;
 		}else {
@@ -542,7 +542,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Clicked on position, so check if it is the same, and (destroy and) build if neccesary
-	void ClickedPosition(int posX, int posY){
+	private void ClickedPosition(int posX, int posY){
 		// If it's the same, just keep the previous one and do nothing, else (destroy and) build
 		if (level [posX, posY, selectedLayer] != selectedTileIndex) {
 			// Push level on undoStack since it is going to change
@@ -557,7 +557,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Fill from position recursively. Only fill if the position is valid and empty
-	void Fill(int posX, int posY, bool undoPush){
+	private void Fill(int posX, int posY, bool undoPush){
 		// Check valid and empty
 		if (ValidPosition (posX, posY, selectedLayer) && level [posX, posY, selectedLayer] == EMPTY) {
 			if (undoPush) {
@@ -575,7 +575,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Toggle fill mode (between fill and pencil mode)
-	void ToggleFillMode(){
+	private void ToggleFillMode(){
 		if(fillMode){
 			DisableFillMode ();
 		}
@@ -585,14 +585,14 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Enable fill mode and update UI
-	void EnableFillMode(){
+	private void EnableFillMode(){
 		fillMode = true;
 		fillModeButtonImage.GetComponent<Image>().color = Color.black;
 		pencilModeButtonImage.GetComponent<Image>().color = DisabledColor;
 	}
 
 	// Disable fill mode and update UI and cursor
-	void DisableFillMode(){
+	private void DisableFillMode(){
 		fillMode = false;
 		Cursor.SetCursor (null, Vector2.zero , CursorMode.Auto);
 		pencilModeButtonImage.GetComponent<Image>().color = Color.black;
@@ -638,24 +638,24 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Update the width of the prefabParent object, the height will be scaled automatically
-	void UpdatePrefabParentWidth(){
+	private void UpdatePrefabParentWidth(){
 		prefabParent.GetComponent<RectTransform> ().sizeDelta = new Vector2 (PrefabsContainerWidth, 100f);
 		selectedTile.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (-PrefabsContainerWidth, 0);
 	}
 
 	// Update the size of the prefab tile objects, the images will be square to keep the aspect ratio original
-	void UpdatePrefabButtonsSize(){
+	private void UpdatePrefabButtonsSize(){
 		prefabParent.GetComponent<GridLayoutGroup> ().cellSize = new Vector2 (buttonSize, buttonSize);
 	}
 
 	// Update the size of the selected tile game object, the images will be scaled to half that
-	void UpdateSelectedTileSize(){
+	private void UpdateSelectedTileSize(){
 		selectedTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (selectedTileSize, selectedTileSize);
 		selectedTileImage.GetComponent<RectTransform> ().sizeDelta = new Vector2 (selectedTileSize/2, selectedTileSize/2);
 	}
 
 	// Check for mouse button clicks and handle accordingly
-	void HandleInput(int posX, int posY){
+	private void HandleInput(int posX, int posY){
 		// Left click - Create object (check hotControl and not over UI)
 		if (Input.GetMouseButton (0) && GUIUtility.hotControl == 0 && !EventSystem.current.IsPointerOverGameObject()) {
 			// Only allow additions if the selectedTile is not EMPTY (cannot add/fill nothing)
@@ -738,7 +738,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that updates the LayerText
-	void UpdateLayerText()
+	private void UpdateLayerText()
 	{
 		layerText.text = "" + (selectedLayer + 1);
 	}
@@ -760,21 +760,21 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that increments the selected layer
-	public void LayerUp()
+	private void LayerUp()
 	{
 		selectedLayer = Mathf.Min (selectedLayer + 1, LAYERS - 1);
 		UpdateLayerVisibility ();
 	}
 
 	// Method that decrements the selected layer
-	public void LayerDown()
+	private void LayerDown()
 	{
 		selectedLayer = Mathf.Max (selectedLayer - 1, 0);
 		UpdateLayerVisibility ();
 	}
 
 	// Method that handles the UI toggle to only show the current layer
-	public void ToggleOnlyShowCurrentLayer(bool onlyShow){
+	private void ToggleOnlyShowCurrentLayer(bool onlyShow){
 		onlyShowCurrentLayer = onlyShow;
 		// Update UI
 		if (onlyShowCurrentLayer) {
@@ -791,7 +791,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that updates which layers should be shown
-	public void UpdateLayerVisibility(){
+	private void UpdateLayerVisibility(){
 		if (onlyShowCurrentLayer) {
 			OnlyShowCurrentLayer ();
 		} else {
@@ -800,19 +800,19 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that enables/disables all layerParents
-	public void ToggleLayerParents(bool show){
+	private void ToggleLayerParents(bool show){
 		foreach (GameObject layerParent in layerParents.Values) {
 			layerParent.SetActive (show);
 		}
 	}
 
 	// Method that enables all layers
-	public void ShowAllLayers(){
+	private void ShowAllLayers(){
 		ToggleLayerParents (true);
 	}
 
 	// Method that disables all layers except the current one
-	public void OnlyShowCurrentLayer(){
+	private void OnlyShowCurrentLayer(){
 		ToggleLayerParents (false);
 		GetLayerParent (selectedLayer).SetActive (true);
 	}
@@ -887,7 +887,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Save the level to a variable and file using FileBrowser and SaveLevelUsingPath
-	public void SaveLevel()
+	private void SaveLevel()
 	{
 		List<string> newLevel = new List<string> ();
 		// Loop through the layers
@@ -922,7 +922,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Save to a file using a path
-	private void SaveLevelUsingPath (string path)
+	public void SaveLevelUsingPath (string path)
 	{
 		// Enable the LevelEditor when the fileBrowser is done
 		ToggleLevelEditor (true);
@@ -940,7 +940,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that resets the GameObjects and layers
-	void ResetTransformsAndLayers()
+	private void ResetTransformsAndLayers()
 	{
 		// Destroy everything inside our currently level that's created dynamically
 		foreach (Transform child in tileLevelParent.transform) {
@@ -950,7 +950,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that resets the level and GameObject before a load
-	void ResetBeforeLoad()
+	private void ResetBeforeLoad()
 	{
 		// Destroy everything inside our currently level that's created dynamically
 		foreach (Transform child in tileLevelParent.transform) {
@@ -964,7 +964,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Load the level from a file using FileBrowser and LoadLevelUsingPath
-	public void LoadLevel()
+	private void LoadLevel()
 	{
 		// Open file browser to get the path and file name
 		OpenFileBrowser (FileBrowserMode.Load);
@@ -991,7 +991,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that loads the layers
-	void LoadLevelFromStringLayers(string content)
+	private void LoadLevelFromStringLayers(string content)
 	{
 		// Split our level on layers by the new tabs (\t)
 		List <string> layers = new List <string> (content.Split ('\t'));
@@ -1005,7 +1005,7 @@ public class LevelEditor : MonoBehaviour {
 	}
 
 	// Method that loads one layer
-	void LoadLevelFromString(int layer, string content)
+	private void LoadLevelFromString(int layer, string content)
 	{
 		// Split our layer on rows by the new lines (\n)
 		List <string> lines = new List <string> (content.Split ('\n'));
