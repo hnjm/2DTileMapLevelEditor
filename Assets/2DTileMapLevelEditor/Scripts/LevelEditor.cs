@@ -125,6 +125,8 @@ public class LevelEditor : MonoBehaviour {
 	public GameObject fileBrowserPrefab;
 	// Temporary variable to save level before getting the path using the FileBrowser
 	private string levelToSave;
+	// Temporary variable to save state of level editor before opening file browser and restore it after save/load
+	private bool preFileBrowserState = true;
 
 	// Method to Instantiate the LevelEditor instance and keep it from destroying
 	void Awake()
@@ -872,6 +874,7 @@ public class LevelEditor : MonoBehaviour {
 
 	// Open a file browser to save and load files
 	public void OpenFileBrowser(FileBrowserMode fileBrowserMode){
+		preFileBrowserState = scriptEnabled;
 		// Disable the LevelEditor while the fileBrowser is open
 		ToggleLevelEditor (false);
 		// Create the file browser and name it
@@ -925,7 +928,7 @@ public class LevelEditor : MonoBehaviour {
 	public void SaveLevelUsingPath (string path)
 	{
 		// Enable the LevelEditor when the fileBrowser is done
-		ToggleLevelEditor (true);
+		ToggleLevelEditor (preFileBrowserState);
 		if (path.Length != 0) {
 			// Save the level to file
 			BinaryFormatter bFormatter = new BinaryFormatter ();
@@ -974,7 +977,7 @@ public class LevelEditor : MonoBehaviour {
 	public void LoadLevelUsingPath(string path)
 	{
 		// Enable the LevelEditor when the fileBrowser is done
-		ToggleLevelEditor (true);
+		ToggleLevelEditor (preFileBrowserState);
 		if (path.Length != 0) {
 			BinaryFormatter bFormatter = new BinaryFormatter ();
 			// Reset the level
