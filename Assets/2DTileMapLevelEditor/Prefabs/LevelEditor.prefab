@@ -54,17 +54,29 @@ MonoBehaviour:
   HEIGHT: 14
   WIDTH: 16
   LAYERS: 10
-  tiles: []
+  tiles:
+  - {fileID: 4000010041083728, guid: f4a7e24c932b14c6488bda2f47a7ff45, type: 2}
+  - {fileID: 4000010041083728, guid: 6b8e52f28732647acb63c0f7698e0f47, type: 2}
+  - {fileID: 4000010041083728, guid: 6d502604d1507447e91d7dd3ba82c063, type: 2}
+  - {fileID: 4000013102667656, guid: 316a8557d38a54a2989f1ea1171f2a18, type: 2}
+  - {fileID: 4000010041083728, guid: 46266abbd7d62496b97d38f5f3448689, type: 2}
+  - {fileID: 4000010041083728, guid: 04d2aa2b3235d4f96a9bc3453962b46e, type: 2}
+  - {fileID: 4000010041083728, guid: cf524a5442a29460095163d69c9ba515, type: 2}
+  - {fileID: 4000010041083728, guid: b0a97a8cde6154196b19c89b29c07541, type: 2}
+  - {fileID: 4000010041083728, guid: 9ddaf934523c14d3ea69f1ff31e74a74, type: 2}
+  - {fileID: 4000010041083728, guid: e30cc65ad371442cca0dddf9cc71b51c, type: 2}
+  - {fileID: 4000010041083728, guid: b03ff37209fbc4a5b838776400df6abb, type: 2}
+  - {fileID: 4000010041083728, guid: 6a94c817bb06d43ed86b967bed96d531, type: 2}
+  - {fileID: 4000010041083728, guid: b1703c8734925405e848b4976d8c7b73, type: 2}
   buttonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
     type: 2}
-  PrefabsContainerWidth: 300
-  buttonSize: 100
+  buttonSize: 90
   selectedTileSize: 100
   buttonImageScale: 0.8
   noSelectedTileImage: {fileID: 21300000, guid: b0aa86e0f4ec845b295e83ba21730cd6,
     type: 3}
   fileExtension: lvl
-  levelEditorUIPrefab: {fileID: 1766113333738446, guid: af70c1079866248b89c3135c269319c8,
+  levelEditorUIPrefab: {fileID: 1352682877195322, guid: 036231413d74d4f71829b18988be0136,
     type: 2}
   fillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
   fileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,

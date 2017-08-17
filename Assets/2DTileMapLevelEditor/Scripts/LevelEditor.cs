@@ -53,10 +53,6 @@ public class LevelEditor : MonoBehaviour {
 	// Button Prefab used to create tile selection buttons for each GameObjects.
 	public GameObject buttonPrefab;
 
-	// Dimension used to set the width of the GameObject tile container object
-	// Represented using a 0-500 slider in the editor
-	[Range(0.0f, 500.0f)]
-	public float PrefabsContainerWidth = 300f;
 	// Dimensions used for the representation of the GameObject tile selection buttons
 	// Represented using a 0-200 slider in the editor
 	[Range(0.0f, 200.0f)]
@@ -311,8 +307,8 @@ public class LevelEditor : MonoBehaviour {
 	private void SetupGridButtons(){
 		// Hook up ToggleGrid method to GridToggle
 		GameObject gridEyeToggle = FindGameObjectOrError ("GridEyeToggle");
-		gridEyeImage = GameObject.Find ("GridEyeImage");
-		gridClosedEyeImage = GameObject.Find ("GridClosedEyeImage");
+		gridEyeImage = FindGameObjectOrError ("GridEyeImage");
+		gridClosedEyeImage = FindGameObjectOrError ("GridClosedEyeImage");
 		gridEyeToggleComponent = gridEyeToggle.GetComponent<Toggle> ();
 		gridEyeToggleComponent.onValueChanged.AddListener (ToggleGrid);
 		ToggleGrid (true);
@@ -372,8 +368,6 @@ public class LevelEditor : MonoBehaviour {
 			// Update the size, to scale the buttons
 			UpdatePrefabButtonsSize ();
 		}
-		// Set the width of the prefabParent object, using the initially set value
-		UpdatePrefabParentWidth();
 
 		// Counter to determine which tile button is pressed
 		int tileCounter = 0;
@@ -606,8 +600,6 @@ public class LevelEditor : MonoBehaviour {
 	{
 		// Only continue if the script is enabled (level editor is open) and there are no errors
 		if (scriptEnabled && errorCounter == 0) {
-			// Update the width to scale at runtime
-			UpdatePrefabParentWidth ();
 			// Update the button size to scale at runtime
 			UpdatePrefabButtonsSize();
 			// Update the selected tile game object to scale at runtime
@@ -637,12 +629,6 @@ public class LevelEditor : MonoBehaviour {
 				HandleInput (posX, posY);
 			}
 		}
-	}
-
-	// Update the width of the prefabParent object, the height will be scaled automatically
-	private void UpdatePrefabParentWidth(){
-		prefabParent.GetComponent<RectTransform> ().sizeDelta = new Vector2 (PrefabsContainerWidth, 100f);
-		selectedTile.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (-PrefabsContainerWidth, 0);
 	}
 
 	// Update the size of the prefab tile objects, the images will be square to keep the aspect ratio original
