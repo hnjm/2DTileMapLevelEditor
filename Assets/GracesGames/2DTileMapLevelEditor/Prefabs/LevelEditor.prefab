@@ -51,10 +51,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe68dddc1943d4bfcbd0a134ce7a81b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HEIGHT: 14
-  WIDTH: 16
-  LAYERS: 10
-  tiles:
+  Height: 10
+  Width: 16
+  Layers: 10
+  Tiles:
   - {fileID: 4000010041083728, guid: f4a7e24c932b14c6488bda2f47a7ff45, type: 2}
   - {fileID: 4000010041083728, guid: 6b8e52f28732647acb63c0f7698e0f47, type: 2}
   - {fileID: 4000010041083728, guid: 6d502604d1507447e91d7dd3ba82c063, type: 2}
@@ -68,16 +68,16 @@ MonoBehaviour:
   - {fileID: 4000010041083728, guid: b03ff37209fbc4a5b838776400df6abb, type: 2}
   - {fileID: 4000010041083728, guid: 6a94c817bb06d43ed86b967bed96d531, type: 2}
   - {fileID: 4000010041083728, guid: b1703c8734925405e848b4976d8c7b73, type: 2}
-  buttonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
+  ButtonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
     type: 2}
-  buttonSize: 90
-  selectedTileSize: 100
-  buttonImageScale: 0.8
-  noSelectedTileImage: {fileID: 21300000, guid: b0aa86e0f4ec845b295e83ba21730cd6,
+  ButtonSize: 95
+  SelectedTileSize: 100
+  ButtonImageScale: 0.8
+  NoSelectedTileImage: {fileID: 21300000, guid: b0aa86e0f4ec845b295e83ba21730cd6,
     type: 3}
-  fileExtension: lvl
-  levelEditorUIPrefab: {fileID: 1352682877195322, guid: 036231413d74d4f71829b18988be0136,
+  FileExtension: lvl
+  LevelEditorUiPrefab: {fileID: 1352682877195322, guid: 036231413d74d4f71829b18988be0136,
     type: 2}
-  fillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
-  fileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,
+  FillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
+  FileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,
     type: 2}
