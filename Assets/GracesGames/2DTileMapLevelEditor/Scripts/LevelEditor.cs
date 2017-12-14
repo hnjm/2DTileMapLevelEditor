@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using GracesGames.Common.Scripts;
+using GracesGames.SimpleFileBrowser.Scripts;
 using GracesGames._2DTileMapLevelEditor.Scripts.UI;
 
 namespace GracesGames._2DTileMapLevelEditor.Scripts {
@@ -609,6 +610,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			fileBrowserObject.name = "FileBrowser";
 			// Set the mode to save or load
 			FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
+			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape);
 			if (fileBrowserMode == FileBrowserMode.Save) {
 				fileBrowserScript.SaveFilePanel(this, "SaveLevelUsingPath", "Level", FileExtension);
 			} else {
