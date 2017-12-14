@@ -3096,6 +3096,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 376cdc02e2e4c48b59083f5f86eaf7e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ButtonPrefab: {fileID: 1000010740908782, guid: 993ac6289fda64f09b05ea526639da57,
+    type: 2}
+  ButtonSize: 95
+  SelectedTileSize: 100
+  ButtonImageScale: 0.8
+  NoSelectedTileImage: {fileID: 21300000, guid: b0aa86e0f4ec845b295e83ba21730cd6,
+    type: 3}
+  FillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
 --- !u!114 &114957496893870084
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -8,6 +8,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// Sizes of the grid
 		private int _gridSizeX = 10;
+
 		private int _gridSizeY = 10;
 		private const int GridSizeZ = 0;
 
@@ -18,12 +19,14 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		public float LargeStep = 1;
 
 		// Starting position
-		public float StartX = 0;
-		public float StartY = 0;
-		public float StartZ = 0;
+		public float StartX;
+
+		public float StartY;
+		public float StartZ;
 
 		// Offsets
 		private float _offsetX = -0.5f;
+
 		private float _offsetY = -0.5f;
 
 		// Material of the grid

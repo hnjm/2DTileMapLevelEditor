@@ -1,16 +1,13 @@
-﻿// Include basic namespaces
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
-// Include for Lists and Dictionaries
 using System.Collections.Generic;
 
-//Include these namespaces to use BinaryFormatter
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using GracesGames._2DTileMapLevelEditor.Scripts.UI;
+using System.Runtime.Serialization.Formatters.Binary;
 
-//Include for Unity EventSystems
-using UnityEngine.EventSystems;
+using GracesGames.Common.Scripts;
+using GracesGames._2DTileMapLevelEditor.Scripts.UI;
 
 namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
@@ -23,9 +20,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// The parent object of the Level Editor UI as prefab
 		public GameObject LevelEditorUiPrefab;
-
-		// Button Prefab used to create tile selection buttons for each GameObjects.
-		public GameObject ButtonPrefab;
 
 		// FileBrowser Prefab to open Save- and LoadFilePanel
 		public GameObject FileBrowserPrefab;
@@ -40,30 +34,13 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		// Public so the user can add all user-created prefabs
 		public List<Transform> Tiles;
 
-		// Dimensions used for the representation of the GameObject tile selection buttons
-		// Represented using a 0-200 slider in the editor
-		[Range(1.0f, 200.0f)] public float ButtonSize = 100;
-
-		// Dimensions used for the representation of the selected tile game object
-		// Represented using a 0-200 slider in the editor
-		[Range(1.0f, 200.0f)] public float SelectedTileSize = 100;
-
-		// Scale of the images in regards to the total image rectangle size
-		[Range(0.1f, 1.0f)] public float ButtonImageScale = 0.8f;
-
-		// Sprite to indicate no tile is currently selected
-		public Sprite NoSelectedTileImage;
-
-		// UI objects to display pencil/fill mode
-		public Texture2D FillCursor;
-
 		// File extension used to save and load the levels
 		public string FileExtension = "lvl";
 
 		// ----- PRIVATE VARIABLES -----
 
 		// The user interface script for the Level Editor
-		private LevelEditorUserInterface _uiScript;
+		private UserInterface _uiScript;
 
 		// Whether this script is enabled (false, if the user closes the window)
 		private bool _scriptEnabled = true;
@@ -126,9 +103,9 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// Method to instantiate the dependencies and variables
 		void Start() {
-			// Check the start values to prevent errors
-			CheckStartValues();
-			
+			// Validate the start values to prevent errors
+			ValidateStartValues();
+
 			// Setup elements
 			SetupGridOverlay();
 			SetupCamera();
@@ -138,12 +115,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		}
 
 		// Method that checks public variables values and sets them to valid defaults when necessary
-		private void CheckStartValues() {
+		private void ValidateStartValues() {
 			Width = Mathf.Clamp(Width, 1, Width);
 			Height = Mathf.Clamp(Height, 1, Height);
 			Layers = Mathf.Clamp(Layers, 1, Layers);
-			ButtonSize = Mathf.Clamp(ButtonSize, 1, ButtonSize);
-			ButtonImageScale = Mathf.Clamp01(ButtonImageScale);
 			FileExtension = FileExtension.Trim() == "" ? "lvl" : FileExtension;
 		}
 
@@ -152,12 +127,12 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			GridOverlay.Instance.SetGridSizeX(Width);
 			GridOverlay.Instance.SetGridSizeY(Height);
 		}
-		
+
 		// Find the camera, position it in the middle of our level and store initial zoom level
 		private void SetupCamera() {
 			_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 			if (_mainCamera != null) {
-				_mainCamera.transform.position = new Vector3(Width / 2, Height / 2, _mainCamera.transform.position.z);
+				_mainCamera.transform.position = new Vector3(Width / 2.0f, Height / 2.0f, _mainCamera.transform.position.z);
 				//Store initial zoom level
 				_mainCameraComponent = _mainCamera.GetComponent<Camera>();
 				_mainCameraInitialSize = _mainCameraComponent.orthographic
@@ -167,7 +142,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 				Debug.LogError("Object with tag MainCamera not found");
 			}
 		}
-		
+
 		// Instantiate the undo and redo stack
 		private void SetupStacks() {
 			_undoStack = new FiniteStack<int[,,]>();
@@ -189,20 +164,18 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			GameObject canvas = GameObject.Find("Canvas");
 			if (canvas != null) {
 				GameObject levelEditorUi = Instantiate(LevelEditorUiPrefab, canvas.transform);
-				_uiScript = levelEditorUi.GetComponent<LevelEditorUserInterface>();
+				_uiScript = levelEditorUi.GetComponent<UserInterface>();
 			} else {
 				Debug.LogError("Make sure there is a canvas GameObject present in the Hierarcy (Create UI/Canvas)");
 			}
 			// Setup the UI
-			_uiScript.Setup(Tiles, ButtonPrefab, ButtonImageScale);
+			_uiScript.Setup();
 			// Initally disable fill mode
 			DisableFillMode();
 			// Initialy enable grid
 			ToggleGrid(true);
 			// Set the SelectedTile to Empty (-1) and update the selectedTileImage
 			SetSelectedTile(Empty);
-			// Set the initial prefab button size
-			UpdatePrefabButtonsSize();
 		}
 
 		// Method to set the selectedTile variable and the selectedTileImage
@@ -210,9 +183,27 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			// Update selectedTile variable
 			_selectedTileIndex = tileIndex;
 			// If EMPTY, set selectedTileImage to noSelectedTileImage else to the corresponding Prefab tile image
-			_uiScript.SetSelectedTileImageSprite(tileIndex == Empty
-				? NoSelectedTileImage
-				: Tiles[tileIndex].gameObject.GetComponent<SpriteRenderer>().sprite);
+			_uiScript.SetSelectedTileImageSprite(tileIndex);
+		}
+
+		// Returns whether the script is enabled (e.g. whether input is registered) 
+		public bool GetScriptEnabled() {
+			return _scriptEnabled;
+		}
+
+		// Returns the static representation of an EMPTY tile
+		public static int GetEmpty() {
+			return Empty;
+		}
+
+		// Returns the array of Tiles
+		public List<Transform> GetTiles() {
+			return Tiles;
+		}
+
+		// Returns the currently selected layer
+		public int GetSelectedLayer() {
+			return _selectedLayer;
 		}
 
 		// Method to switch selectedTile on tile selection
@@ -405,15 +396,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			_uiScript.ToggleFillMode(false);
 		}
 
-		// Method that updates the UI and handles creation and deletion on click
+		// Handles input (creation and deletion on click)
 		void Update() {
-			// Only continue if the script is enabled (level editor is open) and there are no errors
+			// Only continue if the script is enabled (level editor is open)
 			if (_scriptEnabled) {
-				// Update the button size to scale at runtime
-				UpdatePrefabButtonsSize();
-				// Update the selected tile game object to scale at runtime
-				UpdateSelectedTileSize();
-
 				// Save the world point were the mouse clicked
 				Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				// Update fill mode cursor
@@ -422,8 +408,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 				UpdatePreviewTilePosition(worldMousePosition);
 				// Check button input
 				CheckButtonInput();
-				// Update the layer text
-				UpdateLayerText();
 				// Get the mouse position before click
 				Vector3 mousePos = Input.mousePosition;
 				// Set the position in the z axis to the opposite of the camera's so that the position is on the world
@@ -438,17 +422,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 					HandleInput(posX, posY);
 				}
 			}
-		}
-
-		// Update the size of the prefab tile objects, the images will be square to keep the aspect ratio original
-		private void UpdatePrefabButtonsSize() {
-			_uiScript.SetPrefabParentCellSize(new Vector2(ButtonSize, ButtonSize));
-		}
-
-		// Update the size of the selected tile game object, the images will be scaled to half that
-		private void UpdateSelectedTileSize() {
-			_uiScript.SetSelectedTileSize(new Vector2(SelectedTileSize, SelectedTileSize));
-			_uiScript.SetSelectedTileImageSize(new Vector2(SelectedTileSize / 2, SelectedTileSize / 2));
 		}
 
 		// Check for mouse button clicks and handle accordingly
@@ -485,13 +458,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		private void UpdateFillModeCursor(Vector3 worldMousePosition) {
 			if (_fillMode) {
 				// If valid position, set cursor to bucket
-				if (ValidPosition((int) worldMousePosition.x, (int) worldMousePosition.y, 0)) {
-					Cursor.SetCursor(FillCursor, new Vector2(30, 25), CursorMode.Auto);
-				}
-				// Else use default cursor
-				else {
-					Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-				}
+				_uiScript.ToggleFillModeCursor(ValidPosition((int) worldMousePosition.x, (int) worldMousePosition.y, 0));
 			}
 		}
 
@@ -511,17 +478,15 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			if (Input.GetKeyDown(KeyCode.Z)) {
 				Undo();
 			}
-
 			// If Y is pressed, redo action
 			if (Input.GetKeyDown(KeyCode.Y)) {
 				Redo();
 			}
-
 			// If Equals is pressed, zoom in
 			if (Input.GetKeyDown(KeyCode.Equals)) {
 				ZoomIn();
 			}
-			// if Minus is pressed, zoom in
+			// if Minus is pressed, zoom out
 			if (Input.GetKeyDown(KeyCode.Minus)) {
 				ZoomOut();
 			}
@@ -533,11 +498,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			if (Input.GetKeyDown(KeyCode.F)) {
 				ToggleFillMode();
 			}
-		}
-
-		// Method that updates the LayerText
-		private void UpdateLayerText() {
-			_uiScript.SetLayerText("" + (_selectedLayer + 1));
 		}
 
 		// Method that toggles the grid
@@ -616,11 +576,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 				_layerParents.Add(layer, layerParent);
 			}
 			return _layerParents[layer];
-		}
-
-		// Returns whether the script is enabled (e.g. whether input is registered) 
-		public bool GetScriptEnabled() {
-			return _scriptEnabled;
 		}
 
 		// Close the level editor panel, test level mode

@@ -9,7 +9,7 @@ using UnityEngine;
 namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
     public class MoveCamera : MonoBehaviour {
-        
+
         // VARIABLES
 
         public float PanSpeed = 4.0f; // Speed of the camera when being panned
