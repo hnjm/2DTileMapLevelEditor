@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# 2D Tile Map Level Editor for Unity
+# 2D Tile Map Level Editor
 
 Available in the [Unity Asset Store](https://www.assetstore.unity3d.com/en/#!/content/90420)
 
