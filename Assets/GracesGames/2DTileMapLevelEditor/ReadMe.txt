@@ -11,7 +11,6 @@ Features:
 - Test and change at run-time for quick iterations 
 - Open source and fully customizable to support the needs of your game
 
-
 - Save and load the levels 
 - Use different layers to create depth
 - Undo and redo functionality
@@ -22,4 +21,4 @@ Features:
 
 Online documentation:
 
-https://github.com/GracesGames/2DTileMapLevelEditor and https://github.com/GracesGames/2DTileMapLevelEditor/wiki
+https://gracesgames.github.io/2DTileMapLevelEditor/

@@ -15,4 +15,4 @@ Features:
 
 Online documentation:
 
-https://github.com/GracesGames/SimpleFileBrowser and https://github.com/GracesGames/SimpleFileBrowser/wiki
+https://gracesgames.github.io/SimpleFileBrowser/

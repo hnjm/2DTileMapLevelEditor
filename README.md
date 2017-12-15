@@ -14,7 +14,7 @@ The 2D Tile Map Level Editor allows developers to create levels in a fast and in
 - Add and remove prefabs to build levels intuitively
 - Allow players to create and share their own levels
 - Playtest at run-time for quick iterations
-- Open source and fully customizable to support the needs of your game
+- 
 - Save and load levels
 - Use different layers
 - Undo and redo functionality
@@ -23,4 +23,4 @@ The 2D Tile Map Level Editor allows developers to create levels in a fast and in
 - Fill up empty spaces with one click
 - Dynamic grid overlay to visualize tile placement
 
-For a content description, setup instructions, controls/hotkeys and more please see the [wiki](https://github.com/GracesGames/2DTileMapLevelEditor/wiki)
+For a content description, setup instructions, controls/hotkeys and more please see the [website](https://gracesgames.github.io/2DTileMapLevelEditor/)
