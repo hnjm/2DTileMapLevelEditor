@@ -18,7 +18,7 @@ permalink: /setup/
 2. Create an instance of Canvas using the Unity create in the Hierarchy (Create -> UI -> Canvas)  
     My settings:
 	- UI Scale Mode: Scale With Screen Size
-	- Reference resolution: 1280 x 720
+	- Reference resolution: 1920 x 1080
 	- Rest as default
 
 3. Attach the GridOverlay and MoveCamera script to the main camera
@@ -30,7 +30,7 @@ permalink: /setup/
 	- Add the prefab test tiles or your own files to the Tiles array
 	- Rest as default
 	
-6. Set the Game Mode aspect ratio to 16:9 or resolution to 1280 x 720
+6. Set the Game Mode aspect ratio to 16:9 or resolution to 1920 x 1080
 
 7. Hit the play button
 
