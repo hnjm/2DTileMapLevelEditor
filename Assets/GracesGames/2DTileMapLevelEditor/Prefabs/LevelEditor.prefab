@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4476745195887002}
   - component: {fileID: 114203227262763276}
+  - component: {fileID: 114793591385743480}
   m_Layer: 0
   m_Name: LevelEditor
   m_TagString: Untagged
@@ -58,15 +59,16 @@ MonoBehaviour:
   Height: 10
   Width: 16
   Layers: 10
-  Tiles:
-  - {fileID: 4000013102667656, guid: b34e418e5797844cfae30860de728df3, type: 2}
-  - {fileID: 4000010041083728, guid: d573bda6707bc405ca3f0a02c446696b, type: 2}
-  - {fileID: 4000010041083728, guid: efbbd2ae9aa8f460e82905a8fb0974c5, type: 2}
-  - {fileID: 4000010041083728, guid: bedde3dd8dfb64627aa0343cfb9a455b, type: 2}
-  - {fileID: 4000010041083728, guid: 00890ac1e002b45e491cb768cdaef64a, type: 2}
-  - {fileID: 4000010041083728, guid: 7d38d188e97d848ff920cb4cd2e3e373, type: 2}
-  - {fileID: 4000010041083728, guid: f7fd9cda4e1e24e2a85bb97a61f8cc81, type: 2}
-  - {fileID: 4000011169756728, guid: c5bf4424a05514be597de92e852ff421, type: 2}
-  - {fileID: 4000010041083728, guid: 2cece3ef8eba449e8a841ef15c589ee7, type: 2}
-  - {fileID: 4000010041083728, guid: 537f2cee0def540c897bcced1b17b98b, type: 2}
+  Tileset: {fileID: 1262293513748834, guid: 228a020a16a0f4a6f8e03de3b0c37b00, type: 2}
   FileExtension: lvl
+--- !u!114 &114793591385743480
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1275434589739012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e111bf9a56cf4a279239b130ebd142c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
