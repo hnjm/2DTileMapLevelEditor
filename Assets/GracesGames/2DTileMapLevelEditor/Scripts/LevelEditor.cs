@@ -123,7 +123,12 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			Height = Mathf.Clamp(Height, 1, Height);
 			Layers = Mathf.Clamp(Layers, 1, Layers);
 			FileExtension = FileExtension.Trim() == "" ? "lvl" : FileExtension;
-			_tiles = Tileset.GetComponent<Tileset>().Tiles;
+			if (Tileset == null || Tileset.GetComponent<Tileset>() == null) {
+				_tiles = new List<Transform>();
+				Debug.LogError("No valid Tileset found");
+			} else {
+				_tiles = Tileset.GetComponent<Tileset>().Tiles;
+			}
 		}
 
 		// Define the level sizes as the sizes for the grid
