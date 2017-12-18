@@ -433,6 +433,23 @@ Prefab:
       value: 
       objectReference: {fileID: 4000010041083728, guid: b1703c8734925405e848b4976d8c7b73,
         type: 2}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: TileSet
+      value: 
+      objectReference: {fileID: 1945623894999360, guid: bc29ab9de35474ffdb3098cc32143e12,
+        type: 2}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: Tileset
+      value: 
+      objectReference: {fileID: 1945623894999360, guid: bc29ab9de35474ffdb3098cc32143e12,
+        type: 2}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: Layers
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 840ad8b7ad2c249179d3bc1e62ace2f2, type: 2}
   m_IsPrefabParent: 0

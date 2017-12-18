@@ -352,6 +352,28 @@ Prefab:
       propertyPath: SaveType
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: TileSet
+      value: 
+      objectReference: {fileID: 1088918722868512, guid: 980ba13f1d33042df817866913fb42eb,
+        type: 2}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: Layers
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: FileExtension
+      value: lvl
+      objectReference: {fileID: 0}
+    - target: {fileID: 114203227262763276, guid: 840ad8b7ad2c249179d3bc1e62ace2f2,
+        type: 2}
+      propertyPath: Tileset
+      value: 
+      objectReference: {fileID: 1088918722868512, guid: 980ba13f1d33042df817866913fb42eb,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 840ad8b7ad2c249179d3bc1e62ace2f2, type: 2}
   m_IsPrefabParent: 0

@@ -33,12 +33,14 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// The list of tiles the user can use to create maps
 		// Public so the user can add all user-created prefabs
-		public List<Transform> Tiles;
+		public GameObject Tileset;
 
 		// File extension used to save and load the levels
 		public string FileExtension = "lvl";
 
 		// ----- PRIVATE VARIABLES -----
+
+		private List<Transform> _tiles;
 
 		// The user interface script for the Level Editor
 		private UserInterface _uiScript;
@@ -121,6 +123,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			Height = Mathf.Clamp(Height, 1, Height);
 			Layers = Mathf.Clamp(Layers, 1, Layers);
 			FileExtension = FileExtension.Trim() == "" ? "lvl" : FileExtension;
+			_tiles = Tileset.GetComponent<Tileset>().Tiles;
 		}
 
 		// Define the level sizes as the sizes for the grid
@@ -199,7 +202,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// Returns the array of Tiles
 		public List<Transform> GetTiles() {
-			return Tiles;
+			return _tiles;
 		}
 
 		// Returns the currently selected layer
@@ -213,7 +216,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			if (_previewTile != null) {
 				DestroyImmediate(_previewTile.gameObject);
 			}
-			_previewTile = Instantiate(Tiles[_selectedTileIndex], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100),
+			_previewTile = Instantiate(GetTiles()[_selectedTileIndex], new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100),
 				Quaternion.identity);
 			foreach (Collider2D c in _previewTile.GetComponents<Collider2D>()) {
 				c.enabled = false;
@@ -255,7 +258,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 			_level[xPos, yPos, zPos] = value;
 			// If the value is not empty, set it to the correct tile
 			if (value != Empty) {
-				toCreate = Tiles[value];
+				toCreate = GetTiles()[value];
 			}
 			if (toCreate != null) {
 				//Create the object we want to create
