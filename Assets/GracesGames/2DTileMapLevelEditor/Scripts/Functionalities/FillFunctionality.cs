@@ -7,8 +7,13 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 	public class FillFunctionality : MonoBehaviour {
 
+		// ----- PRIVATE VARIABLES -----
+
+		// The level editor
+		private LevelEditor _levelEditor;
+
 		// UI objects to display pencil/fill mode
-		public Texture2D FillCursor;
+		private Texture2D _fillCursor;
 
 		// Boolean to determine whether to use fill mode or pencil mode
 		private bool _fillMode;
@@ -17,9 +22,15 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		private Image _pencilModeButtonImage;
 
 		private Image _fillModeButtonImage;
+
+		// Color to display disabled mode
 		private static readonly Color32 DisabledColor = new Color32(150, 150, 150, 255);
 
-		public void Setup() {
+		// ----- SETUP -----
+
+		public void Setup(Texture2D fillCursor) {
+			_levelEditor = LevelEditor.Instance;
+			_fillCursor = fillCursor;
 			SetupClickListeners();
 			// Initally disable fill mode
 			DisableFillMode();
@@ -28,25 +39,45 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		// Hook up Mode methods to Mode button
 		private void SetupClickListeners() {
 			// Hook up EnablePencilMode method to PencilButton
-			GameObject pencilModeButton =
-				Utilities.FindButtonAndAddOnClickListener("PencilButton", DisableFillMode);
+			GameObject pencilModeButton = Utilities.FindButtonAndAddOnClickListener("PencilButton", DisableFillMode);
 			_pencilModeButtonImage = pencilModeButton.GetComponent<Image>();
-
 			// Hook up EnableFillMode method to FillButton
 			GameObject fillModeButton = Utilities.FindButtonAndAddOnClickListener("FillButton", EnableFillMode);
 			_fillModeButtonImage = fillModeButton.GetComponent<Image>();
 		}
-		
-		public bool GetFillMode() {
-			return _fillMode;
-		}
+
+		// ----- UPDATE -----
 
 		private void Update() {
 			// If F is pressed, toggle FillMode;
 			if (Input.GetKeyDown(KeyCode.F)) {
 				ToggleFillMode();
 			}
+			// Update the cursor
+			UpdateCursor();
 		}
+
+		// Update cursor (only show fill cursor on grid)
+		private void UpdateCursor() {
+			// Save the world point were the mouse clicked
+			Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			if (_fillMode && _levelEditor.ValidPosition((int) worldMousePosition.x, (int) worldMousePosition.y, 0)) {
+				// If valid position, set cursor to bucket
+				Cursor.SetCursor(_fillCursor, new Vector2(30, 25), CursorMode.Auto);
+			} else {
+				// Else reset cursor
+				Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+			}
+		}
+
+		// ----- PUBLIC METHODS -----
+
+		// Returns whether fill mode is enabled
+		public bool GetFillMode() {
+			return _fillMode;
+		}
+
+		// ----- PRIVATE METHODS -----
 
 		// Toggle fill mode (between fill and pencil mode)
 		private void ToggleFillMode() {
@@ -70,16 +101,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
 			_pencilModeButtonImage.GetComponent<Image>().color = Color.black;
 			_fillModeButtonImage.GetComponent<Image>().color = DisabledColor;
-		}
-
-		// If fill mode is enabled, update cursor (only show fill cursor on grid)
-		public void UpdateFillModeCursor(bool validPosition) {
-			if (_fillMode && validPosition) {
-				// If valid position, set cursor to bucket
-				Cursor.SetCursor(FillCursor, new Vector2(30, 25), CursorMode.Auto);
-			} else {
-				Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-			}
 		}
 	}
 }

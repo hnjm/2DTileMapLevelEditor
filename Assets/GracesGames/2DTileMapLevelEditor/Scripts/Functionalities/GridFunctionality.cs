@@ -6,15 +6,20 @@ using GracesGames.Common.Scripts;
 namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 	public class GridFunctionality : MonoBehaviour {
+		
+		// ----- PRIVATE VARIABLES -----
 
 		// UI objects to toggle the grid
 		private GameObject _gridEyeImage;
 
 		private GameObject _gridClosedEyeImage;
 		private Toggle _gridEyeToggleComponent;
+		
+		// ----- SETUP -----
 
 		public void Setup(int width, int height) {
 			SetupClickListeners();
+			// Setup grid overlay
 			SetupGridOverlay(width, height);
 			// Initialy enable grid
 			ToggleGrid(true);
@@ -45,20 +50,17 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			GridOverlay.Instance.SetGridSizeX(width);
 			GridOverlay.Instance.SetGridSizeY(height);
 		}
+		
+		// ----- PRIVATE METHODS -----
 
 		// Method that toggles the grid
 		private void ToggleGrid(bool enable) {
 			GridOverlay.Instance.enabled = enable;
 			// Update UI 
-			if (enable) {
-				_gridClosedEyeImage.SetActive(true);
-				_gridEyeImage.SetActive(false);
-				_gridEyeToggleComponent.targetGraphic = _gridClosedEyeImage.GetComponent<Image>();
-			} else {
-				_gridEyeImage.SetActive(true);
-				_gridClosedEyeImage.SetActive(false);
-				_gridEyeToggleComponent.targetGraphic = _gridEyeImage.GetComponent<Image>();
-			}
+			_gridEyeImage.SetActive(!enable);
+			_gridClosedEyeImage.SetActive(enable);
+			_gridEyeToggleComponent.targetGraphic =
+				enable ? _gridClosedEyeImage.GetComponent<Image>() : _gridEyeImage.GetComponent<Image>();
 		}
 	}
 }

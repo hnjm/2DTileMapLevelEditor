@@ -83,7 +83,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.UI {
 			// Counter to determine which tile button is pressed
 			int tileCounter = 0;
 			//Create a button for each tile in tiles
-			foreach (Transform tile in LevelEditor.Instance.GetTiles()) {
+			foreach (Transform tile in _levelEditor.GetTiles()) {
 				int index = tileCounter;
 				GameObject button = Instantiate(ButtonPrefab, Vector3.zero, Quaternion.identity);
 				button.name = tile.name;
@@ -96,30 +96,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.UI {
 			}
 		}
 
-		// ----- TOGGLES -----
-
-		// Enables/disables the Level Editor Panel
-		public void ToggleLevelEditorPanel(bool enable) {
-			_levelEditorPanel.SetActive(enable);
-		}
-
-		// Enables/disables the Open Button (inverse of Level Editor Panel toggle)
-		public void ToggleOpenButton(bool enable) {
-			_openButton.SetActive(enable);
-		}
-
-		// ----- SET IMAGES -----
-
-		// Updates the selected tile image.
-		// Either sets it to the NoSelectedTileImage when the tileIndex is empty (default -1_
-		// Or to the sprite of the selected tile
-		public void SetSelectedTileImageSprite(int tileIndex) {
-			_selectedTileImage.sprite = (tileIndex == LevelEditor.GetEmpty()
-				? NoSelectedTileImage
-				: LevelEditor.Instance.GetTiles()[tileIndex].gameObject.GetComponent<SpriteRenderer>().sprite);
-		}
-
-		// ----- UPDATE METHODS -----
+		// ----- UPDATE -----
 
 		// Updates the User Interface so it is configurable at run-time
 		void Update() {
@@ -140,6 +117,29 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.UI {
 		private void UpdateSelectedTileSize() {
 			_selectedTile.GetComponent<RectTransform>().sizeDelta = new Vector2(SelectedTileSize, SelectedTileSize);
 			_selectedTileImage.GetComponent<RectTransform>().sizeDelta = new Vector2(SelectedTileSize / 2, SelectedTileSize / 2);
+		}
+
+		// ----- TOGGLES -----
+
+		// Enables/disables the Level Editor Panel
+		public void ToggleLevelEditorPanel(bool enable) {
+			_levelEditorPanel.SetActive(enable);
+		}
+
+		// Enables/disables the Open Button (inverse of Level Editor Panel toggle)
+		public void ToggleOpenButton(bool enable) {
+			_openButton.SetActive(enable);
+		}
+
+		// ----- SET IMAGES -----
+
+		// Updates the selected tile image.
+		// Either sets it to the NoSelectedTileImage when the tileIndex is empty (default -1)
+		// Or to the sprite of the selected tile
+		public void SetSelectedTileImageSprite(int tileIndex) {
+			_selectedTileImage.sprite = (tileIndex == LevelEditor.GetEmpty()
+				? NoSelectedTileImage
+				: _levelEditor.GetTiles()[tileIndex].gameObject.GetComponent<SpriteRenderer>().sprite);
 		}
 	}
 }

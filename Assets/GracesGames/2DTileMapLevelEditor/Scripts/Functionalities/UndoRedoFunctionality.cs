@@ -6,6 +6,9 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 	public class UndoRedoFunctionality : MonoBehaviour {
 
+		// ----- PRIVATE VARIABLES -----
+
+		// The level editor
 		private LevelEditor _levelEditor;
 
 		// Stacks to keep track for undo and redo feature
@@ -13,7 +16,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		private FiniteStack<int[,,]> _redoStack;
 
-		// Instantiate the undo and redo stack
+		// ----- SETUP -----
+
 		public void Setup() {
 			_levelEditor = LevelEditor.Instance;
 			_undoStack = new FiniteStack<int[,,]>();
@@ -27,6 +31,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			Utilities.FindButtonAndAddOnClickListener("RedoButton", Redo);
 		}
 
+		// ----- UPDATE -----
+
 		private void Update() {
 			// If Z is pressed, undo action
 			if (Input.GetKeyDown(KeyCode.Z)) {
@@ -38,6 +44,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			}
 		}
 
+		// ----- PUBLIC METHODS -----
+
 		// Reset undo and redo stacks
 		public void Reset() {
 			_undoStack = new FiniteStack<int[,,]>();
@@ -48,6 +56,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		public void PushLevel(int[,,] level) {
 			_undoStack.Push(level.Clone() as int[,,]);
 		}
+
+		// ----- PRIVATE METHODS -----
 
 		// Load last saved level from undo stack and rebuild level
 		private void Undo() {

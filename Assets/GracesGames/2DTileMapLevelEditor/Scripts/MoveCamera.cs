@@ -31,11 +31,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
             if (!Input.GetMouseButton(1)) _isPanning = false;
 
             // Move the camera on it's XY plane
-            if (_isPanning) {
-                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - _mouseOrigin);
-                Vector3 move = new Vector3(pos.x * PanSpeed, pos.y * PanSpeed, 0);
-                transform.Translate(move, Space.Self);
-            }
+            if (!_isPanning) return;
+            Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - _mouseOrigin);
+            Vector3 move = new Vector3(pos.x * PanSpeed, pos.y * PanSpeed, 0);
+            transform.Translate(move, Space.Self);
         }
     }
 }

@@ -6,10 +6,15 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
     public class ZoomFunctionality : MonoBehaviour {
 
+        // ----- PRIVATE VARIABLES -----
+
         // Main camera components for zoom feature
         private Camera _mainCameraComponent;
 
+        // Initial size used to reset the zoom functionality
         private float _mainCameraInitialSize;
+
+        // ----- SETUP -----
 
         // Find the camera, position it in the middle of our level and store initial zoom level
         public void Setup(int width, int height) {
@@ -22,7 +27,6 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
                 _mainCameraInitialSize = _mainCameraComponent.orthographic
                     ? _mainCameraComponent.orthographicSize
                     : _mainCameraComponent.fieldOfView;
-
                 SetupClickListeners();
             } else {
                 Debug.LogError("Object with tag MainCamera not found");
@@ -35,6 +39,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
             Utilities.FindButtonAndAddOnClickListener("ZoomOutButton", ZoomOut);
             Utilities.FindButtonAndAddOnClickListener("ZoomDefaultButton", ZoomDefault);
         }
+
+        // ----- UPDATE -----
 
         private void Update() {
             // If Equals is pressed, zoom in
@@ -50,6 +56,8 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
                 ZoomDefault();
             }
         }
+
+        // ----- PRIVATE METHODS -----
 
         // Increment the orthographic size or field of view of the camera, thereby zooming in
         private void ZoomIn() {
