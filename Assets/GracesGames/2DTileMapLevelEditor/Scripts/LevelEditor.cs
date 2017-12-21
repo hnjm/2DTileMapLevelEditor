@@ -7,6 +7,12 @@ using GracesGames._2DTileMapLevelEditor.Scripts.UI;
 using GracesGames._2DTileMapLevelEditor.Scripts.Functionalities;
 
 namespace GracesGames._2DTileMapLevelEditor.Scripts {
+	
+	// Enum used to define save type
+	public enum TileIdentificationMethod {
+		Index,
+		Name
+	}
 
 	[RequireComponent(typeof(SaveFunctionality))]
 	[RequireComponent(typeof(LoadFunctionality))]
@@ -33,6 +39,12 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 
 		// File extension used to save and load the levels
 		public string FileExtension = "lvl";
+		
+		// Method to identifiction the tiles when saving
+		public TileIdentificationMethod SaveMethod;
+
+		// Method to identifiction the tiles when loading
+		public TileIdentificationMethod LoadMethod;
 
 		// The X,Y and Z value of the map
 		public int Height = 14;
@@ -150,10 +162,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		// Setup the different functionalities of the level editor
 		private void SetupFunctionalities() {
 			_saveFunctionality = GetComponent<SaveFunctionality>();
-			_saveFunctionality.Setup(FileBrowserPrefab, FileExtension);
+			_saveFunctionality.Setup(FileBrowserPrefab, FileExtension, SaveMethod, _tiles);
 			
 			_loadFunctionality = GetComponent<LoadFunctionality>();
-			_loadFunctionality.Setup(FileBrowserPrefab, FileExtension);
+			_loadFunctionality.Setup(FileBrowserPrefab, FileExtension, LoadMethod, _tiles);
 
 			_undoRedoFunctionality = GetComponent<UndoRedoFunctionality>();
 			_undoRedoFunctionality.Setup();

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 using System.Collections.Generic;
 
@@ -23,15 +24,24 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		// The file extension of the file to load
 		private string _fileExtension;
 
+		// Method to identifiction the tiles when loading
+		private TileIdentificationMethod _loadMethod;
+
 		// Temporary variable to save state of level editor before opening file browser and restore it after save/load
 		private bool _preFileBrowserState = true;
 
+		// The tiles used to build the level
+		private List<Transform> _tiles;
+
 		// ----- SETUP -----
 
-		public void Setup(GameObject fileBrowserPrefab, string fileExtension) {
+		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod loadMethod,
+			List<Transform> tiles) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
 			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
+			_loadMethod = loadMethod;
+			_tiles = tiles;
 			SetupClickListeners();
 		}
 
@@ -88,7 +98,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			}
 		}
 
-		// Method that loads one layer
+		// Loads one layer
 		private void LoadLevelFromString(int layer, string content) {
 			// Split our layer on rows by the new lines (\n)
 			List<string> lines = new List<string>(content.Split('\n'));
@@ -96,11 +106,43 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			for (int i = 0; i < lines.Count; i++) {
 				string[] blockIDs = lines[i].Split(',');
 				for (int j = 0; j < blockIDs.Length - 1; j++) {
-					_levelEditor.CreateBlock(int.Parse(blockIDs[j]), j, lines.Count - i - 1, layer);
+					_levelEditor.CreateBlock(TileStringRepresentationToInt(blockIDs[j]), j, lines.Count - i - 1, layer);
 				}
 			}
 			// Update to only show the correct layer(s)
 			_levelEditor.UpdateLayerVisibility();
+		}
+
+		// Transforms the string read from the file to a integer used as internal representation in the level editor
+		// For index, parse the string to int
+		// For name, transverse the Tiles and try to match on game object name
+		// Defaults to -1
+		private int TileStringRepresentationToInt(string tileString) {
+			switch (_loadMethod) {
+				case TileIdentificationMethod.Index:
+					try {
+						return int.Parse(tileString);
+					}
+					catch (FormatException) {
+						Debug.LogError("Error: Trying to load a Name based level using Index loading");
+						return -1;
+					}
+					catch (ArgumentNullException) {
+						Debug.LogError("Error: Encountered a null in the file");
+						return -1;
+					}
+				case TileIdentificationMethod.Name:
+					if (tileString == "-1")
+						return -1;
+					for (int i = 0; i < _tiles.Count; i++) {
+						if (_tiles[i].name == tileString) {
+							return i;
+						}
+					}
+					return -1;
+				default:
+					return -1;
+			}
 		}
 	}
 }
