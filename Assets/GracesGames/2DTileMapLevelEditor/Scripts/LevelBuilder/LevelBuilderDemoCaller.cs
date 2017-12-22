@@ -10,7 +10,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
 		public string RelativePath = "/GracesGames/2DTileMapLevelEditor/DemoLevels/PlatformerIndexExample.lvl";
 
 		private LevelBuilder _levelBuilder;
-		
+
 		void Start() {
 			_levelBuilder = GetComponent<LevelBuilder>();
 			_levelBuilder.LoadLevelUsingPath(Application.dataPath + RelativePath);

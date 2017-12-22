@@ -6,13 +6,13 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
-	
+
 	// Enum used to define save type
 	public enum TileIdentificationMethod {
 		Index,
 		Name
 	}
-	
+
 	// The LevelBuilder allows the user to build level without requiring the LevelEditor prefab or script
 	// It contains the public method LoadLevelUsingPath which will load the file from the path and build the level
 	// For an example, see the LevelBuilderDemoCaller script
@@ -38,7 +38,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
 		private readonly Dictionary<int, GameObject> _layerParents = new Dictionary<int, GameObject>();
 
 		// Setup the TileLevel prefab and set the _tile variable
-		private void Start() {
+		private void Awake() {
 			_tileLevelParent = GameObject.Find("TileLevel") ?? new GameObject("TileLevel");
 			_tiles = _tileset.Tiles;
 		}
@@ -82,7 +82,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
 				}
 			}
 		}
-		
+
 		// Transforms the tile identification type read from the file to a integer used as internal representation in the level editor
 		// For index, parse the string to int
 		// For name, transverse the Tiles and try to match on game object name or EMPTY
@@ -118,15 +118,14 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
 		// Method that creates a GameObject for a given value and position
 		// The value should be the index in the _tiles variable, resulting in the tile to build
 		private void CreateBlock(int value, int xPos, int yPos, int zPos) {
-
 			// If the value is not empty, set it to the correct tile
 			if (value != _empty) {
-				BuildBlock(_tiles[value], xPos, yPos, zPos, GetLayerParent(zPos).transform);
+				BuildBlock(_tiles[value], xPos, yPos, GetLayerParent(zPos).transform);
 			}
 		}
 
 		// Builds the block by instantiating it and setting its parent
-		private void BuildBlock(Transform toCreate, int xPos, int yPos, int zPos, Transform parent) {
+		private void BuildBlock(Transform toCreate, int xPos, int yPos, Transform parent) {
 			//Create the object we want to create
 			Transform newObject = Instantiate(toCreate, new Vector3(xPos, yPos, toCreate.position.z), Quaternion.identity);
 			//Give the new object the same name as our tile prefab
@@ -134,7 +133,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.LevelBuilder {
 			// Set the object's parent to the layer parent variable so it doesn't clutter our Hierarchy
 			newObject.parent = parent;
 		}
-		
+
 		// Method that returns the parent GameObject for a layer
 		private GameObject GetLayerParent(int layer) {
 			if (_layerParents.ContainsKey(layer))
