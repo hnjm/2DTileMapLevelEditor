@@ -40,10 +40,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		// File extension used to save and load the levels
 		public string FileExtension = "lvl";
 		
-		// Method to identifiction the tiles when saving
+		// Method to identify the tiles when saving
 		public TileIdentificationMethod SaveMethod;
 
-		// Method to identifiction the tiles when loading
+		// Method to identify the tiles when loading
 		public TileIdentificationMethod LoadMethod;
 
 		// The X,Y and Z value of the map

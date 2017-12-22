@@ -113,10 +113,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			_levelEditor.UpdateLayerVisibility();
 		}
 
-		// Transforms the string read from the file to a integer used as internal representation in the level editor
+		// Transforms the tile identification type read from the file to a integer used as internal representation in the level editor
 		// For index, parse the string to int
-		// For name, transverse the Tiles and try to match on game object name
-		// Defaults to -1
+		// For name, transverse the Tiles and try to match on game object name or EMPTY
+		// Defaults to LevelEditor.GetEmpty() (-1)
 		private int TileStringRepresentationToInt(string tileString) {
 			switch (_loadMethod) {
 				case TileIdentificationMethod.Index:
@@ -125,23 +125,23 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 					}
 					catch (FormatException) {
 						Debug.LogError("Error: Trying to load a Name based level using Index loading");
-						return -1;
+						return LevelEditor.GetEmpty();
 					}
 					catch (ArgumentNullException) {
 						Debug.LogError("Error: Encountered a null in the file");
-						return -1;
+						return LevelEditor.GetEmpty();
 					}
 				case TileIdentificationMethod.Name:
-					if (tileString == "-1")
-						return -1;
+					if (tileString == "EMPTY")
+						return LevelEditor.GetEmpty();
 					for (int i = 0; i < _tiles.Count; i++) {
 						if (_tiles[i].name == tileString) {
 							return i;
 						}
 					}
-					return -1;
+					return LevelEditor.GetEmpty();
 				default:
-					return -1;
+					return LevelEditor.GetEmpty();
 			}
 		}
 	}

@@ -84,14 +84,20 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			return result;
 		}
 
+		// Converts the internal level represtation (integer) to the tile idenfication type
+		// Tiles can be identified using their index in the Tileset array or the name of the prefab game object
+		// Empty tiles will be saved using the name "EMPTY"
+		// Default will be LevelEditor.GetEmpty() (-1 default value)
 		private string TileSaveRepresentationToString(int[,,] levelToSave, int x, int y, int layer) {
 			switch (_saveMethod) {
 				case TileIdentificationMethod.Index:
 					return "" + levelToSave[x, y, layer];
 				case TileIdentificationMethod.Name:
-					return levelToSave[x, y, layer] == -1 ? "-1" : _tiles[levelToSave[x, y, layer]].gameObject.name;
+					return levelToSave[x, y, layer] == LevelEditor.GetEmpty()
+						? "EMPTY"
+						: _tiles[levelToSave[x, y, layer]].gameObject.name;
 				default:
-					return "";
+					return "" + LevelEditor.GetEmpty();
 			}
 		}
 
