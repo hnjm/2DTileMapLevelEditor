@@ -21,19 +21,27 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		// The file extension for the saved file
 		private string _fileExtension;
+		
+		// Method to identifiction the tiles when saving
+		private TileIdentificationMethod _saveMethod;
 
 		// Temporary variable to save level before getting the path using the FileBrowser
 		private string _levelToSave;
 
 		// Temporary variable to save state of level editor before opening file browser and restore it after save/load
 		private bool _preFileBrowserState = true;
+		
+		// The tiles used to build the level
+		private List<Transform> _tiles;
 
 		// ----- SETUP -----
 
-		public void Setup(GameObject fileBrowserPrefab, string fileExtension) {
+		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod saveMethod, List<Transform> tiles) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
 			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
+			_saveMethod = saveMethod;
+			_tiles = tiles;
 			SetupClickListeners();
 		}
 
@@ -76,6 +84,23 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			return result;
 		}
 
+		// Converts the internal level represtation (integer) to the tile idenfication type
+		// Tiles can be identified using their index in the Tileset array or the name of the prefab game object
+		// Empty tiles will be saved using the name "EMPTY"
+		// Default will be LevelEditor.GetEmpty() (-1 default value)
+		private string TileSaveRepresentationToString(int[,,] levelToSave, int x, int y, int layer) {
+			switch (_saveMethod) {
+				case TileIdentificationMethod.Index:
+					return "" + levelToSave[x, y, layer];
+				case TileIdentificationMethod.Name:
+					return levelToSave[x, y, layer] == LevelEditor.GetEmpty()
+						? "EMPTY"
+						: _tiles[levelToSave[x, y, layer]].gameObject.name;
+				default:
+					return "" + LevelEditor.GetEmpty();
+			}
+		}
+
 		// Save the level to a variable and file using FileBrowser and SaveLevelUsingPath
 		private void SaveLevel() {
 			int[,,] levelToSave = _levelEditor.GetLevel();
@@ -91,7 +116,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 					for (int y = 0; y < height; y++) {
 						string newRow = "";
 						for (int x = 0; x < width; x++) {
-							newRow += +levelToSave[x, y, layer] + ",";
+							newRow += TileSaveRepresentationToString(levelToSave, x, y, layer) + ",";
 						}
 						if (y != 0) {
 							newRow += "\n";

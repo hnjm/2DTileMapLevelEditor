@@ -86,6 +86,8 @@ MonoBehaviour:
   FileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,
     type: 2}
   FileExtension: lvl
+  SaveMethod: 0
+  LoadMethod: 0
   Height: 10
   Width: 16
   Layers: 10
