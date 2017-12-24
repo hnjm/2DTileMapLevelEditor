@@ -8,7 +8,8 @@ Features:
 
 - Add and remove prefabs to quickly and simply build a level
 - Allow players to create and share their own levels
-- Test and change at run-time for quick iterations 
+- Test and change at run-time for quick iterations
+- Level Builder to build your levels without the Level Editor
 - Open source and fully customizable to support the needs of your game
 
 - Save and load the levels 
