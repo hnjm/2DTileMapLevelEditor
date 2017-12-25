@@ -16,9 +16,9 @@ permalink: /controls_and_hotkeys/
 - Right click and drag to move camera
 
 **Hotkeys:**
-- Z: Undo
-- Y: Redo
-- +: Zoom in
-- -: Zoom out
-- 0: Zoom reset
-- F: Toggle Fill mode
+- **Z** = Undo
+- **Y** = Redo
+- **+** = Zoom in
+- **-** = Zoom out
+- **0** = Zoom reset
+- **F** = Toggle Fill mode
