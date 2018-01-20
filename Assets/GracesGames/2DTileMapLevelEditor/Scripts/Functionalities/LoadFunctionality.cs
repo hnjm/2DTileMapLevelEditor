@@ -33,15 +33,19 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		// The tiles used to build the level
 		private List<Transform> _tiles;
 
+		// Starting path of the file browser
+		private string _startPath;
+
 		// ----- SETUP -----
 
 		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod loadMethod,
-			List<Transform> tiles) {
+			List<Transform> tiles, string startPath) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
 			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
 			_loadMethod = loadMethod;
 			_tiles = tiles;
+			_startPath = startPath;
 			SetupClickListeners();
 		}
 
@@ -83,7 +87,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			fileBrowserObject.name = "FileBrowser";
 			// Set the mode to save or load
 			FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
-			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape);
+			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape, _startPath);
 			fileBrowserScript.OpenFilePanel(this, "LoadLevelUsingPath", _fileExtension);
 		}
 
@@ -109,6 +113,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 					_levelEditor.CreateBlock(TileStringRepresentationToInt(blockIDs[j]), j, lines.Count - i - 1, layer);
 				}
 			}
+
 			// Update to only show the correct layer(s)
 			_levelEditor.UpdateLayerVisibility();
 		}
@@ -139,6 +144,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 							return i;
 						}
 					}
+
 					return LevelEditor.GetEmpty();
 				default:
 					return LevelEditor.GetEmpty();

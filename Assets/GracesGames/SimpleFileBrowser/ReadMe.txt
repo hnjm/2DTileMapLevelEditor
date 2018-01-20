@@ -9,8 +9,10 @@ Features:
 - Easy navigation through file system 
 - Save and load files 
 - Enforce and filter on file extension 
-- Search for files in each directory 
+- Search for files in each directory
 - Support for multiple drives 
+
+- Support for mobile devices
 - Tested on Windows, Mac, Linux and Android
 
 Online documentation:

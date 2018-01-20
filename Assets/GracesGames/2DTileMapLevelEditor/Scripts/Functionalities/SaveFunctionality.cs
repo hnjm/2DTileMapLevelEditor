@@ -21,7 +21,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		// The file extension for the saved file
 		private string _fileExtension;
-		
+
 		// Method to identifiction the tiles when saving
 		private TileIdentificationMethod _saveMethod;
 
@@ -30,18 +30,23 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		// Temporary variable to save state of level editor before opening file browser and restore it after save/load
 		private bool _preFileBrowserState = true;
-		
+
 		// The tiles used to build the level
 		private List<Transform> _tiles;
 
+		// Starting path of the file browser
+		private string _startPath;
+
 		// ----- SETUP -----
 
-		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod saveMethod, List<Transform> tiles) {
+		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod saveMethod,
+			List<Transform> tiles, string startPath) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
 			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
 			_saveMethod = saveMethod;
 			_tiles = tiles;
+			_startPath = startPath;
 			SetupClickListeners();
 		}
 
@@ -81,6 +86,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 					}
 				}
 			}
+
 			return result;
 		}
 
@@ -118,11 +124,14 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 						for (int x = 0; x < width; x++) {
 							newRow += TileSaveRepresentationToString(levelToSave, x, y, layer) + ",";
 						}
+
 						if (y != 0) {
 							newRow += "\n";
 						}
+
 						newLevel.Add(newRow);
 					}
+
 					newLevel.Add("\t" + layer);
 				}
 			}
@@ -133,6 +142,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			foreach (string level in newLevel) {
 				levelComplete += level;
 			}
+
 			// Temporarily save the level to save it using SaveLevelUsingPath
 			_levelToSave = levelComplete;
 			// Open file browser to get the path and file name
@@ -149,7 +159,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			fileBrowserObject.name = "FileBrowser";
 			// Set the mode to save or load
 			FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
-			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape);
+			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape, _startPath);
 			fileBrowserScript.SaveFilePanel(this, "SaveLevelUsingPath", "Level", _fileExtension);
 		}
 	}
