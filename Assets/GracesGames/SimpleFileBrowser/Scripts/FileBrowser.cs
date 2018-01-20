@@ -25,10 +25,10 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 
 		// ----- PUBLIC UI ELEMENTS -----
 
-		// The File Browser UI Landscape mode as prefab
+		// The file browser UI Landscape mode as prefab
 		public GameObject FileBrowserLandscapeUiPrefab;
 
-		// The File Browser UI Portrait mode as prefab
+		// The file browser UI Portrait mode as prefab
 		public GameObject FileBrowserPortraitUiPrefab;
 
 		// ----- PUBLIC FILE BROWSER SETTINGS -----
@@ -41,8 +41,11 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 
 		// ----- PRIVATE UI ELEMENTS ------
 
-		// The user interface script for the Level Editor
+		// The user interface script for the file browser
 		private UserInterface _uiScript;
+
+		// Boolean to keep track whether the file browser is open
+		private bool _isOpen;
 
 		// String used to filter files on name basis 
 		private string _searchFilter = "";
@@ -82,8 +85,9 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 
 		// ----- METHODS -----
 
-		// Method used to setup the FileBrowser
-		public void SetupFileBrowser(ViewMode newViewMode) {
+		// Method used to setup the file browser
+		// Requires a view mode to setup the UI and allows a starting path
+		public void SetupFileBrowser(ViewMode newViewMode, string startPath = "") {
 			// Set the view mode (landscape or portrait)
 			ViewMode = newViewMode;
 
@@ -100,12 +104,17 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 			} else {
 				Debug.LogError("Make sure there is a canvas GameObject present in the Hierarcy (Create UI/Canvas)");
 			}
-			SetupPath();
+
+			SetupPath(startPath);
 		}
 
 		// Sets the current path (Android or other devices)
-		private void SetupPath() {
-			if (IsAndroidPlatform()) {
+		// If the given start path is valid, set the current path to start path
+		private void SetupPath(string startPath) {
+			if (!String.IsNullOrEmpty(startPath) && Directory.Exists(startPath)) {
+				_currentPath = startPath;
+			}
+			else if (IsAndroidPlatform()) {
 				SetupAndroidVariables();
 				_currentPath = _rootAndroidPath;
 			} else {
@@ -133,7 +142,13 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 					path = Directory.GetCurrentDirectory();
 				}
 			}
+
 			return path;
+		}
+		
+		// Returns whether the file browser is open
+		public bool IsOpen() {
+			return _isOpen;
 		}
 
 		// Returns the current mode (save or load)
@@ -148,6 +163,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 				// If so, push it to the forward stack
 				_forwardStack.Push(_currentPath);
 			}
+
 			// Get the last path entry
 			string backPath = _backwardStack.Pop();
 			if (backPath != null) {
@@ -164,6 +180,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 				// If so, push it to the backward stack
 				_backwardStack.Push(_currentPath);
 			}
+
 			// Get the last level entry
 			string forwardPath = _forwardStack.Pop();
 			if (forwardPath != null) {
@@ -190,8 +207,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 			if (IsAndroidPlatform()) {
 				return Directory.GetParent(_currentPath).FullName == Directory.GetParent(_rootAndroidPath).FullName;
 			}
-			return Directory.GetParent(_currentPath) == null;
 
+			return Directory.GetParent(_currentPath) == null;
 		}
 
 		// Closes the file browser and send back an empty string
@@ -218,7 +235,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 		}
 
 		// Sends back a message to the callerScript and callbackMethod
-		// Then destroys the FileBrowser
+		// Then destroys the file browser
 		private void SendCallbackMessage(string message) {
 			_callerScript.SendMessage(_callbackMethod, message);
 			Destroy();
@@ -269,9 +286,12 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 					directories = Directory.GetDirectories(_currentPath);
 				}
 			}
+
 			// For each directory in the current directory, create a DirectoryButton and hook up the DirectoryClick method
 			foreach (string dir in directories) {
-				_uiScript.CreateDirectoryButton(dir);
+				if (Directory.Exists(dir)) {
+					_uiScript.CreateDirectoryButton(dir);
+				}
 			}
 		}
 
@@ -302,11 +322,10 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 
 			// For each file in the current directory, create a FileButton and hook up the FileClick method
 			foreach (string file in files) {
+				if (!File.Exists(file)) return;
 				// Hide files (no button) with incompatible file extensions when enabled
-				if (HideIncompatibleFiles) {
-					if (CompatibleFileExtension(file)) {
-						_uiScript.CreateFileButton(file);
-					}
+				if (HideIncompatibleFiles && CompatibleFileExtension(file)) {
+					_uiScript.CreateFileButton(file);
 				} else {
 					_uiScript.CreateFileButton(file);
 				}
@@ -344,6 +363,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 			} else {
 				_currentFile = clickedFile;
 			}
+
 			UpdateFileBrowser();
 		}
 
@@ -356,6 +376,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 			if (fileExtension == null) {
 				fileExtension = "";
 			}
+
 			_mode = FileBrowserMode.Save;
 			_uiScript.SetSaveMode(defaultName, fileExtension);
 			FilePanel(callerScript, callbackMethod, fileExtension);
@@ -369,6 +390,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 			if (String.IsNullOrEmpty(fileExtension)) {
 				fileExtension = "*";
 			}
+
 			_mode = FileBrowserMode.Load;
 			_uiScript.SetLoadMode();
 			FilePanel(callerScript, callbackMethod, fileExtension);
@@ -376,6 +398,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 
 		// Generic file browser panel to remove duplicate code
 		private void FilePanel(MonoBehaviour callerScript, string callbackMethod, string fileExtension) {
+			// Set _isOpen
+			_isOpen = true;
 			// Set values
 			_fileExtension = fileExtension;
 			_callerScript = callerScript;
@@ -385,7 +409,9 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 		}
 
 		// Destroy this file browser (the UI and the GameObject)
-		private static void Destroy() {
+		private void Destroy() {
+			// Set _isOpen
+			_isOpen = false;
 			Destroy(GameObject.Find("FileBrowserUI"));
 			Destroy(GameObject.Find("FileBrowser"));
 		}
