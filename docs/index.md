@@ -4,7 +4,7 @@ layout: default
 
 # 2D Tile Map Level Editor
 
-Available in the [Unity Asset Store](https://www.assetstore.unity3d.com/en/#!/content/90420)
+Available in the [Unity Asset Store](https://assetstore.unity.com/packages/tools/sprite-management/2d-tile-map-level-editor-90420)
 
 This package allows the user to add a simple 2D Tile Map Level Editor to their game.  
 
