@@ -2,5 +2,6 @@
 
 Description or #|issue-number|
 
+- [ ] The code documentation is updated
 - [ ] Added label (Work in Progress or Ready for Review)
 - [ ] Assigned yourself
