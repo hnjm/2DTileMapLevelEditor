@@ -30,6 +30,7 @@ sysinfo.txt
 *.unitypackage
 
 # idea and Plugins
+/.vs
 /.idea
 /Assets/Plugins*
 .idea/
