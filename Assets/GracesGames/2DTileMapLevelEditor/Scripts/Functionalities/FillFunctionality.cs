@@ -61,7 +61,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		private void UpdateCursor() {
 			// Save the world point were the mouse clicked
 			Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			if (_fillMode && _levelEditor.ValidPosition((int) worldMousePosition.x, (int) worldMousePosition.y, 0)) {
+			if (_levelEditor.GetScriptEnabled() && _fillMode && _levelEditor.ValidPosition((int) worldMousePosition.x, (int) worldMousePosition.y, 0)) {
 				// If valid position, set cursor to bucket
 				Cursor.SetCursor(_fillCursor, new Vector2(30, 25), CursorMode.Auto);
 			} else {
