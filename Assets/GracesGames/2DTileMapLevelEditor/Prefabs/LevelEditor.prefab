@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelEditorUiPrefab: {fileID: 1352682877195322, guid: 036231413d74d4f71829b18988be0136,
     type: 2}
-  FillCursor: {fileID: 2800000, guid: 06eea2f700f324cb88e80e9f58abca3f, type: 3}
+  FillCursor: {fileID: 2800000, guid: 880bdfa326b655946b88ff42b3fef7e7, type: 3}
   FileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,
     type: 2}
   FileExtension: lvl
