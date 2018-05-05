@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 
 using System;
 using System.IO;
@@ -216,8 +215,9 @@ namespace GracesGames.SimpleFileBrowser.Scripts.UI {
 		// Creates a directory button given a directory
 		public void CreateDirectoryButton(string directory) {
 			GameObject button = Instantiate(DirectoryButtonPrefab, Vector3.zero, Quaternion.identity);
-			SetupButton(button, new DirectoryInfo(directory).Name, DirectoriesParent.transform,
-				() => { _fileBrowser.DirectoryClick(directory); });
+			SetupButton(button, new DirectoryInfo(directory).Name, DirectoriesParent.transform);
+			// Setup FileBrowser DirectoryClick method to onClick event
+			button.GetComponent<Button>().onClick.AddListener(() => { _fileBrowser.DirectoryClick(directory); });
 		}
 
 		// Creates a file button given a file
@@ -228,15 +228,16 @@ namespace GracesGames.SimpleFileBrowser.Scripts.UI {
 				DisableWrongExtensionFiles(button, file);
 			}
 
-			SetupButton(button, Path.GetFileName(file), FilesParent.transform, () => { _fileBrowser.FileClick(file); });
+			SetupButton(button, Path.GetFileName(file), FilesParent.transform);
+			// Setup FileButton script for file button (handles click and double click event)
+			button.GetComponent<FileButton>().Setup(_fileBrowser, file, button.GetComponent<Button>().interactable);
 		}
 
 		// Generic method used to extract common code for creating a directory or file button
-		private void SetupButton(GameObject button, string text, Transform parent, UnityAction action) {
+		private void SetupButton(GameObject button, string text, Transform parent) {
 			button.GetComponent<Text>().text = text;
 			button.transform.SetParent(parent, false);
 			button.transform.localScale = Vector3.one;
-			button.GetComponent<Button>().onClick.AddListener(action);
 		}
 
 		// Disables file buttons with files that have a different file extension (than given to the OpenFilePanel)

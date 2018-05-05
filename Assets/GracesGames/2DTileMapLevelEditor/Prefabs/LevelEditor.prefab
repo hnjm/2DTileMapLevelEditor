@@ -85,7 +85,8 @@ MonoBehaviour:
   FillCursor: {fileID: 2800000, guid: 880bdfa326b655946b88ff42b3fef7e7, type: 3}
   FileBrowserPrefab: {fileID: 1760643962491650, guid: 4599b5ba3543545db92bb18160cea721,
     type: 2}
-  FileExtension: lvl
+  FileExtensions:
+  - lvl
   SaveMethod: 0
   LoadMethod: 0
   Height: 10

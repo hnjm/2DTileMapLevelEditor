@@ -38,7 +38,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		public GameObject FileBrowserPrefab;
 
 		// File extension used to save and load the levels
-		public string FileExtension = "lvl";
+		public string[] FileExtensions;
 
 		// Method to identify the tiles when saving
 		public TileIdentificationMethod SaveMethod;
@@ -172,10 +172,10 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts {
 		// Setup the different functionalities of the level editor
 		private void SetupFunctionalities() {
 			_saveFunctionality = GetComponent<SaveFunctionality>();
-			_saveFunctionality.Setup(FileBrowserPrefab, FileExtension, SaveMethod, _tiles, _startPath);
+			_saveFunctionality.Setup(FileBrowserPrefab, FileExtensions, SaveMethod, _tiles, _startPath);
 
 			_loadFunctionality = GetComponent<LoadFunctionality>();
-			_loadFunctionality.Setup(FileBrowserPrefab, FileExtension, LoadMethod, _tiles, _startPath);
+			_loadFunctionality.Setup(FileBrowserPrefab, FileExtensions, LoadMethod, _tiles, _startPath);
 
 			_undoRedoFunctionality = GetComponent<UndoRedoFunctionality>();
 			_undoRedoFunctionality.Setup();
