@@ -95,6 +95,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
             fileBrowserScript.OnFileBrowserClose += ReopenLevelEditor;
         }
 
+        // Reopens the level editor after closing the file browser
         private void ReopenLevelEditor()
         {
             _levelEditor.ToggleLevelEditor(true);
