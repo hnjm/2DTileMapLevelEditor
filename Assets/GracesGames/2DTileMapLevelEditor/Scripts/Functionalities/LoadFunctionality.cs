@@ -22,7 +22,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		private GameObject _fileBrowserPrefab;
 
 		// The file extension of the file to load
-		private string _fileExtension;
+		private string[] _fileExtensions;
 
 		// Method to identifiction the tiles when loading
 		private TileIdentificationMethod _loadMethod;
@@ -38,11 +38,11 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		// ----- SETUP -----
 
-		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod loadMethod,
+		public void Setup(GameObject fileBrowserPrefab, string[] fileExtensions, TileIdentificationMethod loadMethod,
 			List<Transform> tiles, string startPath) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
-			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
+            _fileExtensions = fileExtensions;
 			_loadMethod = loadMethod;
 			_tiles = tiles;
 			_startPath = startPath;
@@ -88,11 +88,20 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			// Set the mode to save or load
 			FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
 			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape, _startPath);
-			fileBrowserScript.OpenFilePanel(this, "LoadLevelUsingPath", _fileExtension);
-		}
+			fileBrowserScript.OpenFilePanel(_fileExtensions);
+            // Subscribe to OnFileSelect event (call LoadLevelUsingPath using path) 
+            fileBrowserScript.OnFileSelect += LoadLevelUsingPath;
+            // Subscribe to OnFileBrowserClose event (call ReopenLevelEditor)
+            fileBrowserScript.OnFileBrowserClose += ReopenLevelEditor;
+        }
 
-		// Method that loads the layers
-		private void LoadLevelFromStringLayers(string content) {
+        private void ReopenLevelEditor()
+        {
+            _levelEditor.ToggleLevelEditor(true);
+        }
+
+        // Method that loads the layers
+        private void LoadLevelFromStringLayers(string content) {
 			// Split our level on layers by the new tabs (\t)
 			List<string> layers = new List<string>(content.Split('\t'));
 			foreach (string layer in layers) {

@@ -20,7 +20,7 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 		private GameObject _fileBrowserPrefab;
 
 		// The file extension for the saved file
-		private string _fileExtension;
+		private string[] _fileExtensions;
 
 		// Method to identifiction the tiles when saving
 		private TileIdentificationMethod _saveMethod;
@@ -39,11 +39,11 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 
 		// ----- SETUP -----
 
-		public void Setup(GameObject fileBrowserPrefab, string fileExtension, TileIdentificationMethod saveMethod,
+		public void Setup(GameObject fileBrowserPrefab, string[] fileExtensions, TileIdentificationMethod saveMethod,
 			List<Transform> tiles, string startPath) {
 			_levelEditor = LevelEditor.Instance;
 			_fileBrowserPrefab = fileBrowserPrefab;
-			_fileExtension = fileExtension.Trim() == "" ? "lvl" : fileExtension;
+            _fileExtensions = fileExtensions;
 			_saveMethod = saveMethod;
 			_tiles = tiles;
 			_startPath = startPath;
@@ -160,7 +160,17 @@ namespace GracesGames._2DTileMapLevelEditor.Scripts.Functionalities {
 			// Set the mode to save or load
 			FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
 			fileBrowserScript.SetupFileBrowser(ViewMode.Landscape, _startPath);
-			fileBrowserScript.SaveFilePanel(this, "SaveLevelUsingPath", "Level", _fileExtension);
-		}
+			fileBrowserScript.SaveFilePanel("Level", _fileExtensions);
+            // Subscribe to OnFileSelect event (call SaveLevelUsingPath using path) 
+            fileBrowserScript.OnFileSelect += SaveLevelUsingPath;
+            // Subscribe to OnFileBrowserClose event (call ReopenLevelEditor) 
+            fileBrowserScript.OnFileBrowserClose += ReopenLevelEditor;
+        }
+
+        // Reopens the level editor after closing the file browser
+        private void ReopenLevelEditor()
+        {
+            _levelEditor.ToggleLevelEditor(true);
+        }
 	}
 }
