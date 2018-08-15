@@ -287,8 +287,12 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 				}
 			}
 
-			// For each directory in the current directory, create a DirectoryButton and hook up the DirectoryClick method
-			foreach (string dir in directories) {
+
+            // Apply Alphanumeric sort to directories
+            Array.Sort(directories, new AlphanumComparatorFast());
+
+            // For each directory in the current directory, create a DirectoryButton and hook up the DirectoryClick method
+            foreach (string dir in directories) {
 				if (Directory.Exists(dir)) {
 					_uiScript.CreateDirectoryButton(dir);
 				}
@@ -320,8 +324,11 @@ namespace GracesGames.SimpleFileBrowser.Scripts {
 				files = ApplyFileSearchFilter(files);
 			}
 
-			// For each file in the current directory, create a FileButton and hook up the FileClick method
-			foreach (string file in files) {
+            // Apply Alphanumeric sort to files
+            Array.Sort(files, new AlphanumComparatorFast());
+
+            // For each file in the current directory, create a FileButton and hook up the FileClick method
+            foreach (string file in files) {
 				if (!File.Exists(file)) return;
 				// Hide files (no button) with incompatible file extensions when enabled
 				if (!HideIncompatibleFiles)
