@@ -34,3 +34,7 @@ sysinfo.txt
 /.idea
 /Assets/Plugins*
 .idea/
+
+# Resouces (images etc.)
+
+/Resources
