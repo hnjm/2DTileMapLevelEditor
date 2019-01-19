@@ -1,5 +1,10 @@
 # 2D Tile Map Level Editor for Unity
 
+<p align="center">
+	<a href="https://assetstore.unity.com/packages/tools/sprite-management/2d-tile-map-level-editor-90420" rel="noreferrer" target="_blank">Store</a> |
+  	<a href="https://gracesgames.com/2DTileMapLevelEditor/" rel="noreferrer" target="_blank">Website</a>
+</p>
+
 Available in the [Unity Asset Store](https://assetstore.unity.com/packages/tools/sprite-management/2d-tile-map-level-editor-90420)
 
 This package allows the user to add a simple 2D Tile Map Level Editor to their game.  
@@ -24,4 +29,4 @@ The 2D Tile Map Level Editor allows developers to create levels in a fast and in
 * Fill up empty spaces with one click
 * Dynamic grid overlay to visualize tile placement
 
-For a content description, setup instructions, controls/hotkeys and more please see the [website](https://gracesgames.github.io/2DTileMapLevelEditor/)
+For a content description, setup instructions, controls/hotkeys and more please see the [website](https://gracesgames.com/2DTileMapLevelEditor/)
