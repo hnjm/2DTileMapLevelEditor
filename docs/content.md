@@ -15,7 +15,7 @@ permalink: /content/
 
 ***
 
-**[Simple File Browser](https://GracesGames.GitHub.io/SimpleFileBrowser)**
+**[Simple File Browser](https://gracesgames.com/SimpleFileBrowser/)**
 
 Used to save and load files without dependency on UnityEditor library
 

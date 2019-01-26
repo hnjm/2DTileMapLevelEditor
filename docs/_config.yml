@@ -17,7 +17,7 @@ title: 2D Tile Map Level Editor
 description: >- # this means to ignore newlines until "baseurl:"
   2D Tile Map Level Editor for Unity
 baseurl: "/2DTileMapLevelEditor" # the subpath of your site, e.g. /blog
-url: "https://gracesgames.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://gracesgames.com" # the base hostname & protocol for your site, e.g. http://example.com
 
 author: Graces Games
 email: GracesGamesBV@gmail.com
